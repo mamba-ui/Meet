@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meet – Log in</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07061a;--ink:#f3f1ff;--mute:#a49fc8;--glass:rgba(255,255,255,.07);--line:rgba(255,255,255,.16);--a:#7c5cff;--b:#ff5cc8;--c:#38e1ff;--err:#ff7a90;--ok:#5cffb1;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;display:grid;place-items:center;overflow-x:hidden}
+#fx{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.55;z-index:0;animation:drift 18s ease-in-out infinite alternate}
+.o1{width:44vmax;height:44vmax;background:var(--a);top:-14vmax;left:-10vmax}
+.o2{width:36vmax;height:36vmax;background:var(--b);bottom:-12vmax;right:-8vmax;animation-delay:-6s}
+.o3{width:24vmax;height:24vmax;background:var(--c);top:40%;left:55%;opacity:.3;animation-delay:-11s}
+@keyframes drift{to{transform:translate(6vmax,4vmax) scale(1.15)}}
+main{position:relative;z-index:1;width:min(400px,92vw);margin:24px 0;display:grid;gap:14px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:28px;padding:36px 32px;backdrop-filter:blur(26px) saturate(160%);-webkit-backdrop-filter:blur(26px) saturate(160%);box-shadow:0 30px 80px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22);position:relative;overflow:hidden;animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.card::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.12) 50%,transparent 70%);transform:translateX(-120%);animation:sheen 6s 1.2s infinite;pointer-events:none}
+@keyframes sheen{to{transform:translateX(120%)}}
+@keyframes rise{from{opacity:0;transform:translateY(30px) scale(.97)}}
+.logo{font-size:52px;font-weight:700;letter-spacing:-.04em;text-align:center;margin:0 0 4px;background:linear-gradient(120deg,#fff,var(--c) 40%,var(--b));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(124,92,255,.7))}
+.tag{text-align:center;color:var(--mute);font-size:14px;margin:0 0 26px;font-weight:300}
+.view{display:none}.view.on{display:block;animation:swap .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes swap{from{opacity:0;transform:translateX(24px);filter:blur(6px)}}
+.f{position:relative;margin-bottom:12px}
+.f input{width:100%;padding:22px 16px 8px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;color:var(--ink);font:inherit;font-size:14px;outline:none;transition:.3s}
+.f label{position:absolute;left:16px;top:16px;font-size:14px;color:var(--mute);pointer-events:none;transition:.25s}
+.f input:focus,.f input:not(:placeholder-shown){padding-top:22px}
+.f input:focus+label,.f input:not(:placeholder-shown)+label{top:7px;font-size:10.5px;color:var(--c)}
+.f input:focus{border-color:var(--a);box-shadow:0 0 0 4px rgba(124,92,255,.25),0 0 24px rgba(124,92,255,.35);background:rgba(255,255,255,.1)}
+.f.bad input{border-color:var(--err)}
+.eye{position:absolute;right:12px;top:14px;background:none;border:0;color:var(--mute);font:600 12px inherit;font-family:inherit;cursor:pointer;padding:4px}
+.eye:hover{color:var(--ink)}
+.btn{width:100%;padding:15px;margin-top:6px;border:0;border-radius:14px;font:600 15px 'Sora',sans-serif;color:#fff;cursor:pointer;background:linear-gradient(120deg,var(--a),var(--b));background-size:160% 100%;box-shadow:0 10px 30px rgba(124,92,255,.5);transition:.35s;position:relative}
+.btn:hover{background-position:100% 0;transform:translateY(-2px);box-shadow:0 16px 40px rgba(255,92,200,.5)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn:focus-visible,.seg button:focus-visible,.link:focus-visible,.eye:focus-visible{outline:2px solid var(--c);outline-offset:3px}
+.or{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:12px;margin:20px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.link{background:none;border:0;color:var(--c);font:600 13px 'Sora',sans-serif;cursor:pointer;padding:0;transition:.2s}
+.link:hover{color:#fff;text-shadow:0 0 12px var(--c)}
+.mid{text-align:center;font-size:13px;color:var(--mute);margin-top:16px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:14px;position:relative}
+.seg::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;background:linear-gradient(120deg,rgba(124,92,255,.7),rgba(255,92,200,.6));transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.seg.ph::before{transform:translateX(100%)}
+.seg button{position:relative;background:none;border:0;color:var(--ink);padding:10px;font:600 13px 'Sora',sans-serif;cursor:pointer}
+.side{padding:22px;text-align:center;font-size:14px;color:var(--mute);border-radius:22px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);animation:rise 1s .15s both}
+.err{color:var(--err);font-size:12.5px;min-height:18px;margin:2px 0 6px;text-align:center}
+.codes{display:flex;gap:8px;justify-content:center;margin:20px 0 6px}
+.codes input{width:46px;height:56px;text-align:center;font:600 22px 'Sora',sans-serif;color:var(--ink);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;outline:none;transition:.25s;padding:0}
+.codes input:focus{border-color:var(--c);box-shadow:0 0 0 4px rgba(56,225,255,.2),0 0 22px rgba(56,225,255,.45);transform:translateY(-3px)}
+.codes.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.h{font-size:22px;font-weight:600;margin:0 0 6px;text-align:center;letter-spacing:-.02em}
+.sub{color:var(--mute);font-size:13.5px;text-align:center;margin:0 0 4px;line-height:1.5;font-weight:300}
+.sub b{color:var(--ink);font-weight:600}
+.tick{width:84px;height:84px;margin:8px auto 18px;border-radius:50%;display:grid;place-items:center;background:rgba(92,255,177,.12);border:1px solid rgba(92,255,177,.5);box-shadow:0 0 40px rgba(92,255,177,.45);animation:pop .7s cubic-bezier(.2,1.4,.3,1)}
+.tick svg{width:40px;stroke:var(--ok);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;animation:dash .6s .3s both}
+@keyframes pop{from{transform:scale(0)}}@keyframes dash{from{stroke-dashoffset:40}}
+#toast{position:fixed;z-index:5;left:50%;top:calc(18px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);background:rgba(20,16,50,.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--line);padding:12px 20px;border-radius:16px;font-size:13px;max-width:92vw;text-align:center;transition:transform .5s cubic-bezier(.2,1.2,.3,1);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#toast.on{transform:translate(-50%,0)}#toast b{color:var(--c);letter-spacing:.15em}
+@media(max-width:420px){.card{padding:30px 22px}.codes input{width:40px;height:50px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div id="toast" role="status"></div>
+
+<main>
+<section class="card">
+  <h1 class="logo">Meet</h1>
+
+  <div class="view on" id="v-login">
+    <p class="tag">Find your people. Say hello.</p>
+    <div class="f"><input id="l-id" placeholder=" " autocomplete="username"><label for="l-id">Phone, username or email</label></div>
+    <div class="f"><input id="l-pw" type="password" placeholder=" " autocomplete="current-password"><label for="l-pw">Password</label><button class="eye" type="button" data-eye="l-pw">Show</button></div>
+    <div class="err" id="l-err"></div>
+    <button class="btn" id="l-go">Log in</button>
+    <div class="or">or</div>
+    <div class="mid" style="margin:0"><button class="link" data-go="reset">Forgot password?</button></div>
+  </div>
+
+  <div class="view" id="v-signup">
+    <p class="tag">Create an account to start meeting people.</p>
+    <div class="seg" id="seg"><button type="button" data-m="email">Email</button><button type="button" data-m="phone">Phone</button></div>
+    <div class="f"><input id="s-ct" type="email" placeholder=" " autocomplete="email"><label for="s-ct" id="s-ctl">Email address</label></div>
+    <div class="f"><input id="s-name" placeholder=" " autocomplete="name"><label for="s-name">Full name</label></div>
+    <div class="f"><input id="s-user" placeholder=" " autocomplete="username"><label for="s-user">Username</label></div>
+    <div class="f"><input id="s-pw" type="password" placeholder=" " autocomplete="new-password"><label for="s-pw">Password (8+ characters)</label><button class="eye" type="button" data-eye="s-pw">Show</button></div>
+    <div class="err" id="s-err"></div>
+    <button class="btn" id="s-go">Send confirmation code</button>
+  </div>
+
+  <div class="view" id="v-verify">
+    <h2 class="h">Enter your code</h2>
+    <p class="sub">We sent a 6-digit code to <b id="v-to"></b></p>
+    <div class="codes" id="codes"></div>
+    <div class="err" id="v-err"></div>
+    <button class="btn" id="v-go">Confirm and join</button>
+    <div class="mid"><span id="v-t"></span> <button class="link" id="v-re" hidden>Send a new code</button></div>
+    <div class="mid" style="margin-top:8px"><button class="link" data-go="signup">Change contact</button></div>
+  </div>
+
+  <div class="view" id="v-reset">
+    <h2 class="h">Reset your password</h2>
+    <p class="sub" style="margin-bottom:18px">Enter your email or phone and we'll send a code.</p>
+    <div class="f"><input id="r-id" placeholder=" "><label for="r-id">Email or phone</label></div>
+    <div class="err" id="r-err"></div>
+    <button class="btn" id="r-go">Send code</button>
+    <div class="mid"><button class="link" data-go="login">Back to log in</button></div>
+  </div>
+
+  <div class="view" id="v-done">
+    <div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h2 class="h">You're in. Welcome to Meet!</h2>
+    <p class="sub">Your account is confirmed.</p>
+    <button class="btn" style="margin-top:20px" data-go="login">Back to start</button>
+  </div>
+</section>
+
+<div class="side" id="side">Don't have an account? <button class="link" data-go="signup">Sign up</button></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+let mode='email',sent='',timer,ctx='signup';
+const views=['login','signup','verify','reset','done'];
+function go(v){
+  views.forEach(x=>$('v-'+x).classList.toggle('on',x===v));
+  const s=$('side');
+  s.style.display=(v==='login'||v==='signup')?'block':'none';
+  s.innerHTML=v==='signup'?'Have an account? <button class="link" data-go="login">Log in</button>':'Don\'t have an account? <button class="link" data-go="signup">Sign up</button>';
+}
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');if(g)go(g.dataset.go);
+  const p=e.target.closest('[data-eye]');
+  if(p){const i=$(p.dataset.eye),h=i.type==='password';i.type=h?'text':'password';p.textContent=h?'Hide':'Show'}
+  const m=e.target.closest('[data-m]');
+  if(m){mode=m.dataset.m;$('seg').classList.toggle('ph',mode==='phone');
+    $('s-ct').type=mode==='phone'?'tel':'email';$('s-ct').autocomplete=mode==='phone'?'tel':'email';
+    $('s-ctl').textContent=mode==='phone'?'Phone number (with country code)':'Email address';$('s-ct').value=''}
+});
+function bad(el,box,msg){$(box).textContent=msg;const f=$(el).closest('.f');if(f){f.classList.add('bad');setTimeout(()=>f.classList.remove('bad'),1800)}}
+function toast(h){const t=$('toast');t.innerHTML=h;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),6000)}
+
+// code boxes
+const box=$('codes');
+for(let i=0;i<6;i++){const n=document.createElement('input');n.maxLength=1;n.inputMode='numeric';n.autocomplete=i?'off':'one-time-code';n.setAttribute('aria-label','Digit '+(i+1));box.appendChild(n)}
+const cells=[...box.children];
+cells.forEach((c,i)=>{
+  c.addEventListener('input',()=>{c.value=c.value.replace(/\D/g,'');if(c.value&&cells[i+1])cells[i+1].focus()});
+  c.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!c.value&&cells[i-1])cells[i-1].focus()});
+  c.addEventListener('paste',e=>{e.preventDefault();const d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6);[...d].forEach((x,k)=>cells[k].value=x);(cells[Math.min(d.length,5)]).focus()});
+});
+function sendCode(to){
+  sent=String(Math.floor(100000+Math.random()*900000));
+  $('v-to').textContent=to;cells.forEach(c=>c.value='');$('v-err').textContent='';
+  go('verify');setTimeout(()=>cells[0].focus(),400);
+  // DEMO ONLY: a real site sends this from the server via SMS/email
+  toast('Demo mode – your code is <b>'+sent+'</b>');
+  let s=30;$('v-re').hidden=true;$('v-t').textContent='Resend in 30s';clearInterval(timer);
+  timer=setInterval(()=>{s--;if(s<=0){clearInterval(timer);$('v-t').textContent='';$('v-re').hidden=false}else $('v-t').textContent='Resend in '+s+'s'},1000);
+}
+$('v-re').onclick=()=>sendCode($('v-to').textContent);
+
+$('l-go').onclick=()=>{
+  if(!$('l-id').value.trim())return bad('l-id','l-err','Enter your phone, username or email.');
+  if($('l-pw').value.length<8)return bad('l-pw','l-err','Password must be at least 8 characters.');
+  $('l-err').textContent='';const b=$('l-go');b.disabled=true;b.textContent='Logging in…';
+  setTimeout(()=>{b.disabled=false;b.textContent='Log in';go('done')},900);
+};
+$('s-go').onclick=()=>{
+  const v=$('s-ct').value.trim();
+  if(mode==='email'&&!/^\S+@\S+\.\S+$/.test(v))return bad('s-ct','s-err','Enter a valid email address.');
+  if(mode==='phone'&&!/^\+?[\d\s-]{8,15}$/.test(v))return bad('s-ct','s-err','Enter a valid phone number, e.g. +250 78 123 4567.');
+  if(!$('s-name').value.trim())return bad('s-name','s-err','Enter your full name.');
+  if(!/^[a-z0-9._]{3,20}$/i.test($('s-user').value))return bad('s-user','s-err','Username: 3–20 letters, numbers, . or _');
+  if($('s-pw').value.length<8)return bad('s-pw','s-err','Password must be at least 8 characters.');
+  $('s-err').textContent='';sendCode(v);
+};
+$('r-go').onclick=()=>{const v=$('r-id').value.trim();if(!v)return bad('r-id','r-err','Enter your email or phone.');$('r-err').textContent='';sendCode(v)};
+$('v-go').onclick=()=>{
+  const code=cells.map(c=>c.value).join('');
+  if(code===sent&&code.length===6){clearInterval(timer);go('done')}
+  else{$('v-err').textContent=code.length<6?'Enter all 6 digits.':'That code is wrong. Check it and try again.';box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake')}
+};
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const v=document.querySelector('.view.on');const b=v&&v.querySelector('.btn');if(b&&!b.disabled)b.click()}});
+
+// glowing particles
+const cv=$('fx'),x=cv.getContext('2d');let W,H,P=[],mx=-999,my=-999;
+const cols=['124,92,255','255,92,200','56,225,255'];
+function size(){const d=devicePixelRatio||1;W=cv.width=innerWidth*d;H=cv.height=innerHeight*d;x.setTransform(d,0,0,d,0,0);
+  P=Array.from({length:Math.round(innerWidth*innerHeight/14000)+18},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2.4+.8,vx:(Math.random()-.5)*.3,vy:-Math.random()*.4-.1,c:cols[Math.random()*3|0],p:Math.random()*6}))}
+addEventListener('resize',size);size();
+addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY});
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function tick(t){
+  x.clearRect(0,0,innerWidth,innerHeight);x.globalCompositeOperation='lighter';
+  for(const p of P){
+    const dx=p.x-mx,dy=p.y-my,d=Math.hypot(dx,dy);
+    if(d<140){p.x+=dx/d*1.4;p.y+=dy/d*1.4}
+    if(!still){p.x+=p.vx;p.y+=p.vy}
+    if(p.y<-10){p.y=innerHeight+10;p.x=Math.random()*innerWidth}
+    if(p.x<-10)p.x=innerWidth+10;if(p.x>innerWidth+10)p.x=-10;
+    const a=.45+.4*Math.sin(t/900+p.p),g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*7);
+    g.addColorStop(0,`rgba(${p.c},${a})`);g.addColorStop(1,`rgba(${p.c},0)`);
+    x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r*7,0,6.283);x.fill();
+    x.fillStyle=`rgba(255,255,255,${a})`;x.beginPath();x.arc(p.x,p.y,p.r*.6,0,6.283);x.fill();
+  }
+  if(!still)requestAnimationFrame(tick)
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
