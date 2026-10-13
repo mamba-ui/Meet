@@ -9,7 +9,7 @@
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
 html{height:100%}
 *,*::before,*::after{box-sizing:inherit}
-body[data-theme=plus]{--bg:radial-gradient(900px 600px at 15% 10%,#1d4f78 0,transparent 60%),radial-gradient(800px 600px at 90% 90%,#47348f 0,transparent 60%),#07121f;--text:#eaf6ff;--muted:#a3bdd1;--panel:rgba(200,235,255,.09);--raise:rgba(200,235,255,.16);--line:rgba(220,245,255,.28);--accent:#9fe8ff;--btn:linear-gradient(135deg,#9fe8ff,#b9a8ff);--ink:#06202e;--mine:linear-gradient(135deg,rgba(159,232,255,.35),rgba(185,168,255,.32));--blur:blur(22px) saturate(140%);--r:22px;--glow:0 0 18px rgba(159,232,255,.45)}
+body[data-theme=plus]{--bg:radial-gradient(900px 600px at 12% 8%,#2a1646 0,transparent 62%),radial-gradient(800px 560px at 92% 95%,#2a1646 0,transparent 60%),#07101c;--text:#f5f5f7;--muted:#a4a8b8;--panel:rgba(14,18,32,.72);--raise:rgba(255,255,255,.1);--line:rgba(255,255,255,.16);--accent:#8ec8ff;--btn:#0095f6;--ink:#fff;--mine:linear-gradient(135deg,rgba(214,41,118,.55),rgba(150,47,191,.55));--blur:blur(16px);--r:14px;--glow:0 0 18px rgba(0,149,246,.45)}
 body[data-theme=dark]{--bg:#10121a;--text:#eceef5;--muted:#8d93a8;--panel:#171a24;--raise:#1f2330;--line:#2a2f3f;--accent:#7c8cff;--btn:#7c8cff;--ink:#0d1024;--mine:#4b57d6;--blur:none;--r:14px;--glow:none}
 body{margin:0;height:100%;background:var(--bg);color:var(--text);font:15px/1.45 "Outfit",system-ui,sans-serif;overflow:hidden}
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
@@ -94,6 +94,16 @@ h2{font-weight:500;font-size:22px;margin:0 0 8px}
 .callcard{text-align:center;padding:34px 40px;min-width:min(320px,90vw)}
 .callcard .av{width:86px;height:86px;font-size:28px;margin:0 auto 14px}
 
+  .av{color:#1b1b1f}
+.badge{color:#06202e}
+#hi{font:400 clamp(36px,7vw,56px)/1.1 "Grand Hotel","Brush Script MT",cursive;margin:0 0 4px;background:linear-gradient(45deg,#feda75,#fa7e1e 25%,#d62976 52%,#962fbf 76%,#4f5bd5);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(214,41,118,.45))}
+.prof{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.prof h1{margin:0 0 6px}
+.ring{padding:3px;border-radius:50%;background:linear-gradient(45deg,#feda75,#fa7e1e 25%,#d62976 52%,#962fbf 76%,#4f5bd5)}
+.ring .av{width:84px;height:84px;font-size:28px;border:3px solid #07101c;background:#c9b8ff}
+.stats{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted)}
+.stats b{color:var(--text)}
+
 @media(max-width:720px){
 .shell{grid-template-columns:1fr;grid-template-rows:1fr 64px;padding:10px;gap:10px}
 .rail{order:2;flex-direction:row;padding:4px;justify-content:space-between}
@@ -117,7 +127,9 @@ h2{font-weight:500;font-size:22px;margin:0 0 8px}
     <button data-tab="chat"><span class="ic">💬</span>Chat</button>
     <button data-tab="calls"><span class="ic">📞</span>Calls</button>
     <button data-tab="people"><span class="ic">👥</span>People</button>
+    
     <button data-tab="games"><span class="ic">🎮</span>Games</button>
+    <button data-tab="account"><span class="ic">👤</span>Account</button>
     <button data-tab="settings"><span class="ic">⚙️</span>Settings</button>
   </nav>
 
@@ -127,11 +139,13 @@ h2{font-weight:500;font-size:22px;margin:0 0 8px}
       <h1 id="hi">Welcome</h1>
       <p class="muted" style="margin:0">Where would you like to go?</p>
       <div class="grid">
+        
         <button class="pane tile" data-go="meet"><span class="ic">📹</span><h2>Meet</h2><span class="muted">Start or join a meeting.</span></button>
         <button class="pane tile" data-go="chat"><span class="ic">💬</span><h2>Chat</h2><span class="muted">Message your people and groups.</span></button>
         <button class="pane tile" data-go="calls"><span class="ic">📞</span><h2>Calls</h2><span class="muted">See recent calls and call back.</span></button>
         <button class="pane tile" data-go="people"><span class="ic">👥</span><h2>People</h2><span class="muted">Find friends and contacts.</span></button>
         <button class="pane tile" data-go="games"><span class="ic">🎮</span><h2>Games</h2><span class="muted">Play a quick game.</span></button>
+        <button class="pane tile" data-go="account"><span class="ic">👤</span><h2>Account</h2><span class="muted">Followers, following and suggestions.</span></button>
         <button class="pane tile" data-go="settings"><span class="ic">⚙️</span><h2>Settings</h2><span class="muted">Theme, name and account.</span></button>
       </div>
     </section>
@@ -214,7 +228,19 @@ h2{font-weight:500;font-size:22px;margin:0 0 8px}
         </div>
       </div>
     </section>
-
+<!-- ACCOUNT -->
+<section class="tab pad" id="account">
+  <div class="pane card prof">
+    <div class="ring"><div class="av" id="pav"></div></div>
+    <div class="meta">
+      <h1 id="pname"></h1>
+      <div class="stats"><span><b id="nFers">0</b> followers</span><span><b id="nFing">0</b> following</span><span><b id="nSug">0</b> suggestions</span></div>
+    </div>
+    <button class="ghost" data-go="settings">Edit name</button>
+  </div>
+  <div class="seg" id="atabs" style="margin:16px 0"><button data-a="sug" class="on">Suggestions</button><button data-a="fers">Followers</button><button data-a="fing">Following</button></div>
+  <div class="pane card" id="alist"></div>
+</section>
     <!-- SETTINGS -->
     <section class="tab pad" id="settings">
       <h1>Settings</h1>
@@ -249,9 +275,10 @@ if(!user){location.replace("index.html")}
 /* tabs */
 var tabs=["home","meet","chat","calls","people","games","settings"];
 function go(id){
-  tabs.forEach(function(t){$(t).classList.toggle("on",t===id)});
+ var tabs=["home","meet","chat","calls","people","games","account","settings"];
   document.querySelectorAll(".rail button").forEach(function(b){b.classList.toggle("on",b.dataset.tab===id)});
   if(id==="chat"){renderList();renderChat()}
+if(id==="account")renderAcc();
 }
 document.querySelectorAll(".rail button").forEach(function(b){b.addEventListener("click",function(){go(b.dataset.tab)})});
 document.querySelectorAll("[data-go]").forEach(function(b){b.addEventListener("click",function(){go(b.dataset.go)})});
@@ -392,7 +419,32 @@ $("gb").addEventListener("click",function(){
   $("gs").textContent=g===secret?"Correct! You got it in "+tries+" tries. 🎉":g<secret?"Too low. Try higher.":"Too high. Try lower.";
 });
 $("gr").addEventListener("click",gReset);
-
+/* account: suggestions, followers, following */
+var pool=[["Grace U.","#feda75",4],["Jean Paul","#ffb199",2],["Aline K.","#ffc6e0",5],["Patrick S.","#a8f0d8",1],["Chantal M.","#c9b8ff",3]];
+var AC={fing:["Amara N.","Eric M.","Design Club"],fers:["Amara N.","Eric M.","Kigali Hikers","Grace U.","Jean Paul"],gone:[]},aTab="sug";
+try{var sv=JSON.parse(ls("meetAcc")||"null");if(sv)AC=sv}catch(e){}
+function saveAcc(){ls("meetAcc",JSON.stringify(AC))}
+function col(n){var p=byName(n);if(p)return p.color;for(var i=0;i<pool.length;i++)if(pool[i][0]===n)return pool[i][1];return "#9fe8ff"}
+function sugg(){return pool.filter(function(p){return AC.fing.indexOf(p[0])<0&&AC.gone.indexOf(p[0])<0})}
+function accRow(n,sub,btns){return '<div class="item"><div class="av" style="background:'+col(n)+'">'+ini(n)+'</div><div class="meta"><b>'+n+'</b><span>'+sub+'</span></div>'+btns+'</div>'}
+function renderAcc(){
+  $("pname").textContent=user;$("pav").textContent=ini(user).toUpperCase();
+  $("nFers").textContent=AC.fers.length;$("nFing").textContent=AC.fing.length;$("nSug").textContent=sugg().length;
+  var h="";
+  if(aTab==="sug")sugg().forEach(function(p){h+=accRow(p[0],p[2]+" mutual friends",'<button class="btn" data-f="'+p[0]+'">Follow</button><button class="ghost" data-x="'+p[0]+'" aria-label="Dismiss '+p[0]+'">✕</button>')});
+  if(aTab==="fers")AC.fers.forEach(function(n){var f=AC.fing.indexOf(n)>-1;h+=accRow(n,"Follows you",f?'<button class="ghost" data-u="'+n+'">Following</button>':'<button class="btn" data-f="'+n+'">Follow back</button>')});
+  if(aTab==="fing")AC.fing.forEach(function(n){h+=accRow(n,"You follow them",'<button class="ghost" data-u="'+n+'">Unfollow</button>')});
+  $("alist").innerHTML=h||'<p class="muted">Nothing here yet.</p>';
+  document.querySelectorAll("#atabs button").forEach(function(b){b.classList.toggle("on",b.dataset.a===aTab)});
+}
+$("atabs").addEventListener("click",function(e){var b=e.target.closest("[data-a]");if(b){aTab=b.dataset.a;renderAcc()}});
+$("alist").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;var d=b.dataset;
+  if(d.f&&AC.fing.indexOf(d.f)<0)AC.fing.push(d.f);
+  if(d.u)AC.fing=AC.fing.filter(function(n){return n!==d.u});
+  if(d.x)AC.gone.push(d.x);
+  saveAcc();renderAcc();
+});
 /* settings */
 function setTheme(t){
   document.body.dataset.theme=t;ls("meetTheme",t);
