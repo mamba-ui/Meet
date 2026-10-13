@@ -46,15 +46,13 @@ a{color:var(--link);text-decoration:none;font-size:12px}
 .small{font-size:14px;margin:0}
 .box.side{padding:20px}
 .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:8px}
-#welcome{display:none}
-body.in #login{display:none}body.in #welcome{display:grid}
 :focus-visible{outline:2px solid #0095f6;outline-offset:2px}
 </style>
 </head>
 <body>
 <canvas id="fx" aria-hidden="true"></canvas>
 <main>
-  <div class="stack" id="login">
+  <div class="stack">
     <form class="box main" id="f" novalidate>
       <h1 class="logo">Meet</h1>
       <div class="field"><input id="u" placeholder=" " autocomplete="username" autocapitalize="none"><label for="u">Name or email</label></div>
@@ -68,35 +66,32 @@ body.in #login{display:none}body.in #welcome{display:grid}
     <div class="box side"><p class="small">Don't have an account? <button class="alt" type="button" id="su">Sign up</button></p></div>
     <p class="foot">© 2026 Meet</p>
   </div>
-  <div class="stack" id="welcome">
-    <div class="box main">
-      <h1 class="logo">Meet</h1>
-      <p class="small" id="hi" style="margin-bottom:18px"></p>
-      <button class="go" id="out" type="button">Log out</button>
-    </div>
-  </div>
 </main>
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
+  var HOME="home.html";
   function get(){try{return localStorage.getItem("meetUser")}catch(e){return null}}
-  function set(v){try{v?localStorage.setItem("meetUser",v):localStorage.removeItem("meetUser")}catch(e){}}
-  function render(){var u=get();document.body.classList.toggle("in",!!u);if(u)$("hi").textContent="Welcome back, "+u+"."}
+  function set(v){try{localStorage.setItem("meetUser",v)}catch(e){}}
+
+  /* Already logged in? Go straight to the home page. */
+  if(get()){location.replace(HOME);return}
+
   var u=$("u"),p=$("p"),b=$("b"),e=$("e");
   function check(){b.disabled=!(u.value.trim()&&p.value.length>=1);e.textContent=""}
   u.addEventListener("input",check);p.addEventListener("input",check);
   $("t").addEventListener("click",function(){var s=p.type==="password";p.type=s?"text":"password";this.textContent=s?"Hide":"Show"});
+
   $("f").addEventListener("submit",function(ev){
     ev.preventDefault();
     if(!u.value.trim()||!p.value){e.textContent="Enter your name and password.";return}
     /* Demo login: replace with your real sign-in check. */
-    set(u.value.trim());render();
+    set(u.value.trim());
+    location.href=HOME;
   });
-  $("guest").addEventListener("click",function(){set("guest");render()});
-  $("out").addEventListener("click",function(){set(null);u.value="";p.value="";check();render()});
+  $("guest").addEventListener("click",function(){set("guest");location.href=HOME});
   $("fp").addEventListener("click",function(ev){ev.preventDefault();e.textContent="Password reset isn't connected in this demo."});
   $("su").addEventListener("click",function(){e.textContent="Sign up isn't connected in this demo."});
-  render();
 
   /* Glowing particles */
   var cv=$("fx"),cx=cv.getContext("2d"),W=0,H=0,D=1,P=[],mx=-9999,my=-9999,dark=1;
