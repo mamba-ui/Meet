@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Glass Messages</title>
+<style>
+:root{
+  --bg1:#1b1146;--bg2:#0b3a5c;--glass:rgba(255,255,255,.10);--glass2:rgba(255,255,255,.18);
+  --edge:rgba(255,255,255,.35);--text:#f4f7ff;--muted:rgba(230,238,255,.62);
+  --cyan:#5ef0ff;--pink:#ff6bd6;--violet:#8f7bff;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)
+}
+:root[data-theme="light"]{--text:#10163a;--muted:rgba(16,22,58,.6);--glass:rgba(255,255,255,.35);--glass2:rgba(255,255,255,.55);--edge:rgba(255,255,255,.8)}
+*{box-sizing:border-box;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%}
+body{font-family:"Space Grotesk","Segoe UI",system-ui,sans-serif;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2));overflow:hidden;display:flex;align-items:center;justify-content:center}
+:root[data-theme="light"] body{background:linear-gradient(135deg,#c9d7ff,#ffd6f3)}
+.orb{position:fixed;border-radius:50%;filter:blur(60px);opacity:.75;animation:float 14s ease-in-out infinite}
+.o1{width:340px;height:340px;background:var(--pink);top:-60px;left:-60px}
+.o2{width:380px;height:380px;background:var(--cyan);bottom:-100px;right:-80px;animation-delay:-5s}
+.o3{width:260px;height:260px;background:var(--violet);top:40%;left:45%;animation-delay:-9s}
+@keyframes float{50%{transform:translate(40px,-30px) scale(1.1)}}
+.stage{perspective:1400px;width:min(1040px,96vw);height:min(680px,92%)}
+.app{position:relative;height:100%;display:grid;grid-template-columns:320px 1fr;gap:18px;transform-style:preserve-3d;transition:transform .15s ease-out}
+.pane{background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);border:1px solid var(--edge);border-radius:26px;box-shadow:0 30px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(255,255,255,.08);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.side{transform:translateZ(40px) rotateY(4deg)}
+.chat{transform:translateZ(60px) rotateY(-2deg)}
+.head{padding:18px 18px 10px}
+.head h1{font-size:22px;font-weight:700;letter-spacing:.2px;display:flex;justify-content:space-between;align-items:center}
+.tbtn{background:var(--glass2);border:1px solid var(--edge);color:var(--text);border-radius:12px;padding:6px 10px;cursor:pointer;font:inherit;font-size:13px}
+.search{margin-top:12px;width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--edge);background:rgba(255,255,255,.08);color:var(--text);font:inherit;outline:none}
+.search::placeholder{color:var(--muted)}
+.search:focus-visible,.tbtn:focus-visible,.row:focus-visible,.send:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.stories{display:flex;gap:12px;padding:6px 18px 12px;overflow-x:auto}
+.story{flex:none;text-align:center;font-size:11px;color:var(--muted);width:54px}
+.ring{width:54px;height:54px;border-radius:50%;padding:2.5px;background:conic-gradient(var(--pink),var(--violet),var(--cyan),var(--pink));margin-bottom:4px}
+.ring .av{width:100%;height:100%;border:2px solid #0d1033}
+.av{border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff}
+.list{overflow-y:auto;padding:0 10px 12px;flex:1}
+.row{display:flex;gap:12px;align-items:center;padding:10px;border-radius:18px;cursor:pointer;border:1px solid transparent;transition:transform .2s,background .2s;width:100%;background:none;color:inherit;font:inherit;text-align:left}
+.row:hover{transform:translateZ(20px) translateX(4px);background:var(--glass)}
+.row.on{background:var(--glass2);border-color:var(--edge);box-shadow:0 10px 24px rgba(0,0,0,.25)}
+.row .av{width:48px;height:48px;flex:none}
+.meta{min-width:0;flex:1}.meta b{display:block;font-size:15px}
+.meta span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.top{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--edge)}
+.top .av{width:42px;height:42px}
+.top small{color:var(--cyan);display:block;font-size:12px}
+.msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;transform-style:preserve-3d}
+.b{max-width:70%;padding:11px 16px;border-radius:22px;font-size:15px;line-height:1.4;position:relative;border:1px solid var(--edge);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 14px 26px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.45);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{opacity:0;transform:translateZ(-60px) scale(.8)}}
+.b.them{align-self:flex-start;background:rgba(255,255,255,.12);border-bottom-left-radius:6px;transform:perspective(600px) rotateY(6deg) translateZ(10px)}
+.b.me{align-self:flex-end;background:linear-gradient(135deg,rgba(143,123,255,.65),rgba(255,107,214,.55));border-bottom-right-radius:6px;transform:perspective(600px) rotateY(-6deg) translateZ(14px)}
+.b time{display:block;font-size:10.5px;opacity:.6;margin-top:3px}
+.typing{align-self:flex-start;display:flex;gap:5px;padding:12px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--cyan);animation:bl 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{50%{transform:translateY(-6px);opacity:.4}}
+.compose{display:flex;gap:10px;padding:14px 16px;border-top:1px solid var(--edge)}
+.compose input{flex:1;padding:13px 18px;border-radius:999px;border:1px solid var(--edge);background:rgba(255,255,255,.1);color:var(--text);font:inherit;outline:none;box-shadow:inset 0 2px 8px rgba(0,0,0,.2)}
+.send{width:48px;height:48px;border-radius:50%;border:1px solid var(--edge);cursor:pointer;color:#fff;font-size:18px;background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 10px 20px rgba(94,240,255,.35),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .2s}
+.send:hover{transform:translateZ(20px) scale(1.1)}
+.back{display:none}
+@media (max-width:760px){
+  .stage{perspective:none;height:100%;width:100vw}
+  .app{grid-template-columns:1fr;gap:0}
+  .pane{border-radius:0}
+  .side,.chat{transform:none}
+  .chat{display:none}
+  .app.open .side{display:none}.app.open .chat{display:flex}
+  .back{display:inline-block}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div class="stage"><div class="app" id="app">
+  <aside class="pane side">
+    <div class="head">
+      <h1>Messages <button class="tbtn" id="theme" aria-label="Toggle theme">Light</button></h1>
+      <input class="search" id="q" placeholder="Search chats" aria-label="Search chats">
+    </div>
+    <div class="stories" id="stories"></div>
+    <div class="list" id="list"></div>
+  </aside>
+  <main class="pane chat">
+    <div class="top"><button class="tbtn back" id="back" aria-label="Back to chats">Back</button><div class="av" id="tav"></div><div><b id="tname"></b><small>Active now</small></div></div>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <div class="compose"><input id="in" placeholder="Message..." aria-label="Message"><button class="send" id="send" aria-label="Send message">&#10148;</button></div>
+  </main>
+</div></div>
+<script>
+const people=[
+ {n:"Nova",c:"#ff6bd6",m:[["them","Did you see the new hologram drop?","09:12"],["me","Yes! The glass look is unreal","09:14"],["them","Send me the file when you can","09:15"]]},
+ {n:"Kairo",c:"#5ef0ff",m:[["them","Meet at the rooftop at 8?","18:40"]]},
+ {n:"Lumi",c:"#8f7bff",m:[["me","Thanks for the help today","Mon"],["them","Anytime, see you soon","Mon"]]},
+ {n:"Zed",c:"#ffb86b",m:[["them","Check out this design idea","Sun"]]},
+ {n:"Ayla",c:"#6bffb0",m:[["them","Happy birthday!","Sat"]]}
+];
+let cur=0;const $=id=>document.getElementById(id);
+const av=(p,s)=>`<div class="av" style="background:linear-gradient(135deg,${p.c},#2a2f7a);${s||''}">${p.n[0]}</div>`;
+function renderList(f=""){
+  $("list").innerHTML="";
+  people.forEach((p,i)=>{
+    if(!p.n.toLowerCase().includes(f.toLowerCase()))return;
+    const l=p.m[p.m.length-1],b=document.createElement("button");
+    b.className="row"+(i===cur?" on":"");
+    b.innerHTML=av(p)+`<div class="meta"><b>${p.n}</b><span>${l[0]==="me"?"You: ":""}${l[1]}</span></div>${i!==cur&&l[0]==="them"?'<i class="dot"></i>':""}`;
+    b.onclick=()=>{cur=i;renderList($("q").value);openChat();$("app").classList.add("open")};
+    $("list").appendChild(b);
+  });
+}
+function bubble(t,x,tm){const d=document.createElement("div");d.className="b "+t;d.textContent=x;const e=document.createElement("time");e.textContent=tm;d.appendChild(e);$("msgs").appendChild(d);$("msgs").scrollTop=1e5}
+function openChat(){const p=people[cur];$("tav").outerHTML=av(p).replace('class="av"','class="av" id="tav"');$("tname").textContent=p.n;$("msgs").innerHTML="";p.m.forEach(m=>bubble(...m))}
+function now(){return new Date().toTimeString().slice(0,5)}
+const replies=["Love it","Haha, same here","Tell me more","Okay, deal","That looks amazing"];
+function send(){
+  const v=$("in").value.trim();if(!v)return;
+  people[cur].m.push(["me",v,now()]);bubble("me",v,now());$("in").value="";renderList($("q").value);
+  const who=cur,t=document.createElement("div");t.className="b them typing";t.innerHTML="<i></i><i></i><i></i>";$("msgs").appendChild(t);$("msgs").scrollTop=1e5;
+  setTimeout(()=>{t.remove();const r=replies[Math.floor(Math.random()*replies.length)];people[who].m.push(["them",r,now()]);if(who===cur)bubble("them",r,now());renderList($("q").value)},1300);
+}
+$("send").onclick=send;$("in").onkeydown=e=>{if(e.key==="Enter")send()};
+$("q").oninput=e=>renderList(e.target.value);
+$("back").onclick=()=>$("app").classList.remove("open");
+$("stories").innerHTML=people.map(p=>`<div class="story"><div class="ring">${av(p)}</div>${p.n}</div>`).join("");
+$("theme").onclick=()=>{const r=document.documentElement,l=r.dataset.theme==="light";r.dataset.theme=l?"dark":"light";$("theme").textContent=l?"Light":"Dark"};
+const app=$("app");
+document.addEventListener("pointermove",e=>{if(innerWidth<760)return;const x=(e.clientX/innerWidth-.5)*10,y=(e.clientY/innerHeight-.5)*-8;app.style.transform=`rotateX(${y}deg) rotateY(${x}deg)`});
+renderList();openChat();
+</script>
+</body>
+</html>
