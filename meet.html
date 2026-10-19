@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meet — Meetings</title>
+  <link rel="stylesheet" href="meet.css">
+</head>
+<body>
+  <div class="shell">
+    <nav class="pane rail" id="nav"></nav>
+
+    <main class="stage">
+      <h1>Meet</h1>
+
+      <div class="pane card">
+        <h2>Start a meeting</h2>
+        <button class="btn" id="newMeet">Create code</button>
+        <div id="codebox" style="display:none;margin-top:14px">
+          <p class="muted">Your meeting code</p>
+          <h2 id="mcode"></h2>
+          <div class="row">
+            <button class="ghost" id="copy">Copy code</button>
+            <a class="btn" href="chat.html">Go to chat</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane card">
+        <h2>Join with a code</h2>
+        <div class="row">
+          <input id="jcode" placeholder="abc-defg-hij">
+          <button class="btn" id="join">Join</button>
+        </div>
+        <p id="mstat" class="muted"></p>
+      </div>
+    </main>
+  </div>
+
+  <script src="meet.js"></script>
+  <script>
+    requireLogin();
+    $("nav").innerHTML = renderNav("meet.html");
+
+    function makeCode(){
+      const letters = "abcdefghijklmnopqrstuvwxyz";
+      const part = n => Array.from({length:n}, () =>
+        letters[Math.floor(Math.random() * 26)]).join("");
+      return part(3) + "-" + part(4) + "-" + part(3);
+    }
+
+    $("newMeet").onclick = () => {
+      $("mcode").textContent = makeCode();
+      $("codebox").style.display = "block";
+    };
+
+    $("copy").onclick = () => {
+      navigator.clipboard.writeText($("mcode").textContent);
+      $("copy").textContent = "Copied";
+      setTimeout(() => $("copy").textContent = "Copy code", 1500);
+    };
+
+    $("join").onclick = () => {
+      const code = $("jcode").value.trim();
+      if(!/^[a-z]{3}-[a-z]{4}-[a-z]{3}$/i.test(code)){
+        $("mstat").textContent = "Use a code like abc-defg-hij.";
+        return;
+      }
+      location.href = "chat.html?meeting=" + encodeURIComponent(code);
+    };
+  </script>
+</body>
+</html>
