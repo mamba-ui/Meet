@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meet — Calls</title>
+  <link rel="stylesheet" href="meet.css">
+</head>
+<body>
+  <div class="shell">
+    <nav class="pane rail" id="nav"></nav>
+
+    <main class="stage">
+      <h1>Calls</h1>
+
+      <div class="pane card" id="callList"></div>
+    </main>
+  </div>
+
+  <script src="meet.js"></script>
+  <script>
+    requireLogin();
+    $("nav").innerHTML = renderNav("calls.html");
+
+    const calls = [
+      ["Amara N.", "Outgoing", "Today, 9:40"],
+      ["Eric M.", "Missed", "Yesterday, 5:12"],
+      ["Design Club", "Incoming", "Sun, 6:00"]
+    ];
+
+    $("callList").innerHTML = calls.map(([name, type, time]) => `
+      <div class="item">
+        <div class="av">${escapeHTML(initials(name))}</div>
+        <div class="meta">
+          <b>${escapeHTML(name)}</b>
+          <span>${escapeHTML(type)} · ${escapeHTML(time)}</span>
+        </div>
+        <a class="btn" href="chat.html">Message</a>
+      </div>
+    `).join("");
+  </script>
+</body>
+</html>
