@@ -1,136 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Meet – Log in</title>
-<link href="https://fonts.googleapis.com/css2?family=Grand+Hotel&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#fdf6fb;--bg2:#f3e4f5;--card:rgba(255,255,255,.82);--edge:#dbdbdb;--text:#1b1b1f;--muted:#737380;
-  --field:#fafafa;--link:#00376b;--btn:#0095f6;--btn-off:#8fd0fb;--err:#d6204a;--dark:0;
-  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#07101c;--bg2:#2a1646;--card:rgba(14,18,32,.72);--edge:rgba(255,255,255,.16);--text:#f5f5f7;--muted:#a4a8b8;
-  --field:rgba(255,255,255,.07);--link:#8ec8ff;--btn:#0095f6;--btn-off:#14507c;--err:#ff8fa8;--dark:1}}
-:root[data-theme="dark"]{
-  --bg:#07101c;--bg2:#2a1646;--card:rgba(14,18,32,.72);--edge:rgba(255,255,255,.16);--text:#f5f5f7;--muted:#a4a8b8;
-  --field:rgba(255,255,255,.07);--link:#8ec8ff;--btn:#0095f6;--btn-off:#14507c;--err:#ff8fa8;--dark:1}
-html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
-*,*::before,*::after{box-sizing:inherit}
-body{margin:0;min-height:100%;color:var(--text);font:14px/1.4 "Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:radial-gradient(900px 600px at 12% 8%,var(--bg2) 0,transparent 62%),radial-gradient(800px 560px at 92% 95%,var(--bg2) 0,transparent 60%),var(--bg)}
-#fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-main{position:relative;z-index:1;min-height:100vh;display:grid;place-items:center;padding:20px 16px}
-.stack{width:100%;max-width:350px;display:grid;gap:10px}
-.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:26px 40px;text-align:center}
-.box.main{padding-top:40px;box-shadow:0 0 40px rgba(214,41,118,.18)}
-.logo{font:400 52px/1.1 "Grand Hotel","Brush Script MT",cursive;margin:0 0 26px;
-  background:linear-gradient(45deg,#feda75,#fa7e1e 25%,#d62976 52%,#962fbf 76%,#4f5bd5);-webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 14px rgba(214,41,118,.45))}
-.field{position:relative;margin-bottom:6px}
-.field input{width:100%;height:38px;padding:14px 8px 2px;border:1px solid var(--edge);border-radius:4px;background:var(--field);color:var(--text);font:inherit;font-size:13px;outline:0}
-.field input:focus{border-color:var(--muted)}
-.field label{position:absolute;left:9px;top:10px;font-size:12px;color:var(--muted);pointer-events:none;transition:transform .12s,font-size .12s;transform-origin:left top}
-.field input:focus+label,.field input:not(:placeholder-shown)+label{transform:translateY(-7px);font-size:10px}
-.field .show{position:absolute;right:8px;top:0;height:38px;border:0;background:none;color:var(--text);font:600 13px "Outfit",sans-serif;cursor:pointer;display:none}
-.field input:not(:placeholder-shown)~.show{display:block}
-.go{width:100%;margin-top:10px;height:32px;border:0;border-radius:8px;background:var(--btn);color:#fff;font:600 14px "Outfit",sans-serif;cursor:pointer;box-shadow:0 0 18px rgba(0,149,246,.45)}
-.go:disabled{background:var(--btn-off);box-shadow:none;cursor:default}
-.or{display:flex;align-items:center;gap:16px;margin:18px 0;color:var(--muted);font-weight:600;font-size:13px}
-.or::before,.or::after{content:"";flex:1;height:1px;background:var(--edge)}
-.alt{border:0;background:none;color:var(--link);font:600 14px "Outfit",sans-serif;cursor:pointer;padding:0}
-.err{color:var(--err);font-size:13px;min-height:18px;margin:14px 0 0}
-a{color:var(--link);text-decoration:none;font-size:12px}
-.small{font-size:14px;margin:0}
-.box.side{padding:20px}
-.foot{text-align:center;color:var(--muted);font-size:12px;margin-top:8px}
-:focus-visible{outline:2px solid #0095f6;outline-offset:2px}
-</style>
-</head>
-<body>
-<canvas id="fx" aria-hidden="true"></canvas>
-<main>
-  <div class="stack">
-    <form class="box main" id="f" novalidate>
-      <h1 class="logo">Meet</h1>
-      <div class="field"><input id="u" placeholder=" " autocomplete="username" autocapitalize="none"><label for="u">Name or email</label></div>
-      <div class="field"><input id="p" type="password" placeholder=" " autocomplete="current-password"><label for="p">Password</label><button type="button" class="show" id="t">Show</button></div>
-      <button class="go" id="b" type="submit" disabled>Log in</button>
-      <div class="or">OR</div>
-      <button class="alt" type="button" id="guest">Continue as guest</button>
-      <p class="err" id="e" role="alert"></p>
-      <a href="#" id="fp">Forgot password?</a>
-    </form>
-    <div class="box side"><p class="small">Don't have an account? <button class="alt" type="button" id="su">Sign up</button></p></div>
-    <p class="foot">© 2026 Meet</p>
-  </div>
-</main>
 <script>
-(function(){
-  var $=function(i){return document.getElementById(i)};
-  var HOME="home.html";
-  function get(){try{return localStorage.getItem("meetUser")}catch(e){return null}}
-  function set(v){try{localStorage.setItem("meetUser",v)}catch(e){}}
-
-  /* Already logged in? Go straight to the home page. */
-  if(get()){location.replace(HOME);return}
-
-  var u=$("u"),p=$("p"),b=$("b"),e=$("e");
-  function check(){b.disabled=!(u.value.trim()&&p.value.length>=1);e.textContent=""}
-  u.addEventListener("input",check);p.addEventListener("input",check);
-  $("t").addEventListener("click",function(){var s=p.type==="password";p.type=s?"text":"password";this.textContent=s?"Hide":"Show"});
-
-  $("f").addEventListener("submit",function(ev){
-    ev.preventDefault();
-    if(!u.value.trim()||!p.value){e.textContent="Enter your name and password.";return}
-    /* Demo login: replace with your real sign-in check. */
-    set(u.value.trim());
-    location.href=HOME;
-  });
-  $("guest").addEventListener("click",function(){set("guest");location.href=HOME});
-  $("fp").addEventListener("click",function(ev){ev.preventDefault();e.textContent="Password reset isn't connected in this demo."});
-  $("su").addEventListener("click",function(){e.textContent="Sign up isn't connected in this demo."});
-
-  /* Glowing particles */
-  var cv=$("fx"),cx=cv.getContext("2d"),W=0,H=0,D=1,P=[],mx=-9999,my=-9999,dark=1;
-  var cols=["254,218,117","250,126,30","214,41,118","150,47,191","79,91,213","0,149,246"];
-  var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-  function mk(){return{x:Math.random()*W,y:Math.random()*H,r:1+Math.random()*2.6,vx:(Math.random()-.5)*.25,vy:-.1-Math.random()*.35,
-    c:cols[Math.floor(Math.random()*cols.length)],ph:Math.random()*6.28,sp:.01+Math.random()*.02}}
-  function size(){
-    D=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
-    cv.width=W*D;cv.height=H*D;cx.setTransform(D,0,0,D,0,0);
-    var n=Math.max(30,Math.min(90,Math.floor(W*H/15000)));
-    while(P.length<n)P.push(mk());P.length=n;
-    dark=getComputedStyle(document.documentElement).getPropertyValue("--dark").trim()==="1";
+  if(localStorage.getItem("meetUser")){
+    location.replace("home.html");
   }
-  function draw(){
-    cx.clearRect(0,0,W,H);
-    cx.globalCompositeOperation=dark?"lighter":"source-over";
-    for(var i=0;i<P.length;i++){
-      var q=P[i],dx=q.x-mx,dy=q.y-my,d=dx*dx+dy*dy;
-      if(!reduce){
-        if(d<14000&&d>1){var f=(1-d/14000)*.6,s=Math.sqrt(d);q.x+=dx/s*f*2;q.y+=dy/s*f*2}
-        q.x+=q.vx;q.y+=q.vy;q.ph+=q.sp;
-        if(q.y<-12){q.y=H+12;q.x=Math.random()*W}
-        if(q.x<-12)q.x=W+12;if(q.x>W+12)q.x=-12;
-      }
-      var a=(.55+.45*Math.sin(q.ph))*(dark?1:.75),R=q.r*7;
-      var g=cx.createRadialGradient(q.x,q.y,0,q.x,q.y,R);
-      g.addColorStop(0,"rgba("+q.c+","+a+")");g.addColorStop(.25,"rgba("+q.c+","+a*.4+")");g.addColorStop(1,"rgba("+q.c+",0)");
-      cx.fillStyle=g;cx.beginPath();cx.arc(q.x,q.y,R,0,6.283);cx.fill();
-      cx.fillStyle="rgba(255,255,255,"+(dark?a:a*.6)+")";cx.beginPath();cx.arc(q.x,q.y,q.r*.6,0,6.283);cx.fill();
+
+  document.getElementById("f").addEventListener("submit", function(event){
+    event.preventDefault();
+
+    const name = document.getElementById("u").value.trim();
+    const password = document.getElementById("p").value;
+
+    if(!name || !password){
+      document.getElementById("e").textContent = "Enter your name and password.";
+      return;
     }
-    if(!reduce)requestAnimationFrame(draw);
-  }
-  addEventListener("resize",function(){size();if(reduce)draw()});
-  addEventListener("pointermove",function(ev){mx=ev.clientX;my=ev.clientY});
-  addEventListener("pointerleave",function(){mx=my=-9999});
-  try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){size()})}catch(x){}
-  size();draw();
-})();
+
+    localStorage.setItem("meetUser", name);
+    location.href = "home.html";
+  });
+
+  document.getElementById("guest").addEventListener("click", function(){
+    localStorage.setItem("meetUser", "Guest");
+    location.href = "home.html";
+  });
 </script>
-</body>
-</html>
