@@ -449,10 +449,21 @@
       this.textContent = showing ? "Show" : "Hide";
     });
 
-    document.getElementById("loginForm").addEventListener("submit", e => {
-      e.preventDefault();
-      alert("Login submitted — connect this form to your backend next.");
-    });
+  document.getElementById("loginForm").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (!username || !password) {
+    alert("Please enter your username and password.");
+    return;
+  }
+
+  // For now, go to the home page.
+  // Later, replace with a real API call.
+  window.location.href = "home.html";
+});
 
     resize();
     animate();
