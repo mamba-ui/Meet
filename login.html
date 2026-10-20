@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meet — Log in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ig-blue: #3897f0;
+      --ig-purple: #8134af;
+      --ig-pink: #dd2a7b;
+      --ig-orange: #f58529;
+      --ig-yellow: #feda77;
+      --text: #f5f5f7;
+      --muted: #a8a8b3;
+      --card: rgba(18, 18, 24, 0.72);
+      --border: rgba(255, 255, 255, 0.12);
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 15% 15%, rgba(221, 42, 123, .28), transparent 60%),
+        radial-gradient(800px 600px at 85% 20%, rgba(129, 52, 175, .30), transparent 60%),
+        radial-gradient(900px 700px at 50% 100%, rgba(56, 151, 240, .25), transparent 65%),
+        #08080d;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .45;
+      z-index: 0;
+      animation: float 14s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 340px; height: 340px;
+      top: -80px; left: -80px;
+      background: linear-gradient(135deg, var(--ig-pink), var(--ig-orange));
+    }
+
+    .orb-2 {
+      width: 420px; height: 420px;
+      bottom: -140px; right: -100px;
+      background: linear-gradient(135deg, var(--ig-blue), var(--ig-purple));
+      animation-delay: -6s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(30px, -35px, 0) scale(1.08); }
+    }
+
+    .page {
+      position: relative;
+      z-index: 2;
+      width: min(420px, calc(100% - 32px));
+      padding: 24px 0 48px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .brand h1 {
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -.04em;
+      background: linear-gradient(90deg, var(--ig-yellow), var(--ig-orange), var(--ig-pink), var(--ig-purple), var(--ig-blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 24px rgba(221, 42, 123, .35));
+    }
+
+    .brand p {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 34px 28px;
+      backdrop-filter: blur(22px);
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, .55),
+        0 0 0 1px rgba(255, 255, 255, .03) inset;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0deg,
+        rgba(56, 151, 240, .8) 60deg,
+        rgba(221, 42, 123, .8) 140deg,
+        rgba(254, 218, 119, .7) 220deg,
+        transparent 320deg
+      );
+      border-radius: inherit;
+      z-index: -1;
+      animation: rotateGlow 7s linear infinite;
+      opacity: .55;
+      filter: blur(18px);
+    }
+
+    @property --angle {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes rotateGlow {
+      to { --angle: 360deg; }
+    }
+
+    .card h2 {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    .card .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    form { display: grid; gap: 14px; }
+
+    .field {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      height: 52px;
+      padding: 0 46px 0 16px;
+      color: var(--text);
+      font-size: 15px;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+
+    input::placeholder { color: #77778a; }
+
+    input:focus {
+      border-color: rgba(56, 151, 240, .8);
+      background: rgba(56, 151, 240, .08);
+      box-shadow: 0 0 0 4px rgba(56, 151, 240, .16);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .remember input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--ig-blue);
+    }
+
+    a {
+      color: var(--ig-blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    button.login {
+      height: 52px;
+      border: 0;
+      border-radius: 14px;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(90deg, var(--ig-blue), var(--ig-purple), var(--ig-pink), var(--ig-orange));
+      background-size: 250% 100%;
+      transition: transform .15s ease, box-shadow .2s ease, background-position .5s ease;
+      box-shadow: 0 12px 30px rgba(221, 42, 123, .25);
+    }
+
+    button.login:hover {
+      transform: translateY(-1px);
+      background-position: 100% 0;
+      box-shadow: 0 16px 40px rgba(129, 52, 175, .35);
+    }
+
+    button.login:active { transform: translateY(0); }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 20px 0 16px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: var(--border);
+    }
+
+    .social {
+      display: grid;
+      gap: 10px;
+    }
+
+    .social button {
+      height: 48px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .04);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+
+    .social button:hover {
+      background: rgba(255, 255, 255, .08);
+      border-color: rgba(255, 255, 255, .2);
+    }
+
+    .signup {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 12px;
+      color: #6f6f7d;
+    }
+
+    @media (max-width: 420px) {
+      .brand h1 { font-size: 36px; }
+      .card { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <main class="page">
+    <div class="brand">
+      <h1>Meet</h1>
+      <p>Meet people. Start conversations. Stay connected.</p>
+    </div>
+
+    <section class="card">
+      <h2>Welcome back</h2>
+      <p class="subtitle">Log in to continue to Meet.</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <input type="text" id="username" placeholder="Phone number, username, or email" autocomplete="username" required />
+        </div>
+
+        <div class="field">
+          <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+          <button type="button" class="toggle-password" id="togglePassword">Show</button>
+        </div>
+
+        <div class="row">
+          <label class="remember">
+            <input type="checkbox" id="remember" />
+            Remember me
+          </label>
+          <a href="#">Forgot password?</a>
+        </div>
+
+        <button class="login" type="submit">Log in</button>
+      </form>
+
+      <div class="divider">OR</div>
+
+      <div class="social">
+        <button type="button">Continue with Google</button>
+        <button type="button">Continue with Apple</button>
+      </div>
+
+      <p class="signup">
+        Don’t have an account? <a href="#">Sign up</a>
+      </p>
+    </section>
+
+    <p class="footer">By continuing, you agree to Meet’s Terms of Service and Privacy Policy.</p>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+
+    let particles = [];
+    let mouse = { x: null, y: null };
+
+    function resize() {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      createParticles();
+    }
+
+    function createParticles() {
+      const count = Math.min(130, Math.floor((canvas.width * canvas.height) / 13000));
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2.2 + 0.6,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        hue: Math.random() < 0.5 ? 210 : 320,
+        alpha: Math.random() * 0.5 + 0.25
+      }));
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
+        glow.addColorStop(0, `hsla(${p.hue}, 100%, 70%, ${p.alpha})`);
+        glow.addColorStop(1, "transparent");
+
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `hsla(${p.hue}, 100%, 85%, ${Math.min(1, p.alpha + 0.25)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i];
+          const b = particles[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < 110) {
+            ctx.strokeStyle = `rgba(160, 170, 255, ${(1 - dist / 110) * 0.16})`;
+            ctx.lineWidth = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    addEventListener("resize", resize);
+    addEventListener("mousemove", e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+
+      for (const p of particles) {
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < 120) {
+          p.x += dx / dist * 0.7;
+          p.y += dy / dist * 0.7;
+        }
+      }
+    });
+
+    document.getElementById("togglePassword").addEventListener("click", function () {
+      const password = document.getElementById("password");
+      const showing = password.type === "text";
+      password.type = showing ? "password" : "text";
+      this.textContent = showing ? "Show" : "Hide";
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", e => {
+      e.preventDefault();
+      alert("Login submitted — connect this form to your backend next.");
+    });
+
+    resize();
+    animate();
+  </script>
+</body>
+</html>
