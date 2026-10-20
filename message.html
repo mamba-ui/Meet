@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meet — Messages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue: #3897f0;
+      --purple: #8134af;
+      --pink: #dd2a7b;
+      --orange: #f58529;
+      --yellow: #feda77;
+      --bg: #08080d;
+      --panel: rgba(18, 18, 24, .72);
+      --panel-2: rgba(255, 255, 255, .04);
+      --border: rgba(255, 255, 255, .10);
+      --text: #f5f5f7;
+      --muted: #a8a8b3;
+    }
+
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 600px at 10% 10%, rgba(221, 42, 123, .22), transparent 60%),
+        radial-gradient(800px 600px at 90% 15%, rgba(129, 52, 175, .25), transparent 60%),
+        radial-gradient(900px 700px at 50% 100%, rgba(56, 151, 240, .20), transparent 65%),
+        var(--bg);
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      background: linear-gradient(90deg, var(--yellow), var(--orange), var(--pink), var(--purple), var(--blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      cursor: pointer;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 16px;
+      transition: .2s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, .09);
+      transform: translateY(-1px);
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--purple), var(--blue));
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .chat-shell {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .conversations,
+    .chat-window {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .conversations {
+      padding: 18px;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 0 16px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .search-box input:focus {
+      border-color: rgba(56, 151, 240, .7);
+      box-shadow: 0 0 0 4px rgba(56, 151, 240, .14);
+    }
+
+    .chat-list {
+      display: grid;
+      gap: 8px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .chat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: .2s;
+    }
+
+    .chat-item:hover {
+      background: var(--panel-2);
+      border-color: var(--border);
+    }
+
+    .chat-item.active {
+      background: linear-gradient(90deg, rgba(56, 151, 240, .22), rgba(221, 42, 123, .22));
+      border-color: rgba(255, 255, 255, .14);
+    }
+
+    .person-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .a { background: linear-gradient(135deg, #3897f0, #8134af); }
+    .b { background: linear-gradient(135deg, #dd2a7b, #f58529); }
+    .c { background: linear-gradient(135deg, #feda77, #dd2a7b); }
+    .d { background: linear-gradient(135deg, #8134af, #3897f0); }
+
+    .chat-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-details strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .chat-details p {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-meta {
+      display: grid;
+      justify-items: end;
+      gap: 6px;
+    }
+
+    .time {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .badge {
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 21px;
+      height: 21px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      padding: 0 6px;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .chat-header strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .chat-header span {
+      font-size: 12px;
+      color: #4ade80;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .message {
+      max-width: 72%;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .message.me {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.45;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+    }
+
+    .message.me .bubble {
+      background: linear-gradient(90deg, rgba(56, 151, 240, .35), rgba(129, 52, 175, .35));
+      border-color: rgba(255, 255, 255, .16);
+      box-shadow: 0 10px 30px rgba(56, 151, 240, .15);
+    }
+
+    .message-time {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    .composer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .composer input {
+      flex: 1;
+      height: 48px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 0 16px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .composer input:focus {
+      border-color: rgba(56, 151, 240, .7);
+      box-shadow: 0 0 0 4px rgba(56, 151, 240, .14);
+    }
+
+    .send-btn {
+      height: 48px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 14px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(90deg, var(--blue), var(--purple), var(--pink), var(--orange));
+      background-size: 220% 100%;
+      transition: .2s;
+    }
+
+    .send-btn:hover {
+      transform: translateY(-1px);
+      background-position: 100% 0;
+    }
+
+    .back-home {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .back-home:hover {
+      color: var(--text);
+    }
+
+    @media (max-width: 850px) {
+      body { overflow: auto; }
+
+      .app {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .chat-shell {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .conversations {
+        max-height: 320px;
+      }
+
+      .chat-window {
+        min-height: 70vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+
+  <div class="app">
+    <header>
+      <div class="logo" onclick="location.href='home.html'">Meet</div>
+      <div class="header-actions">
+        <a class="back-home" href="home.html">← Back to Home</a>
+        <button class="icon-btn">🔔</button>
+        <div class="avatar">Y</div>
+      </div>
+    </header>
+
+    <div class="chat-shell">
+      <aside class="conversations">
+        <div class="search-box">
+          <input type="text" placeholder="Search messages…" />
+        </div>
+
+        <div class="chat-list">
+          <div class="chat-item active" data-name="Mia Chen">
+            <div class="person-avatar a">M</div>
+            <div class="chat-details">
+              <strong>Mia Chen</strong>
+              <p>Are you joining the music room?</p>
+            </div>
+            <div class="chat-meta">
+              <span class="time">2m</span>
+              <span class="badge">2</span>
+            </div>
+          </div>
+
+          <div class="chat-item" data-name="Jordan Lee">
+            <div class="person-avatar b">J</div>
+            <div class="chat-details">
+              <strong>Jordan Lee</strong>
+              <p>Sent a game invite 🎮</p>
+            </div>
+            <div class="chat-meta">
+              <span class="time">18m</span>
+            </div>
+          </div>
+
+          <div class="chat-item" data-name="Sara Kim">
+            <div class="person-avatar c">S</div>
+            <div class="chat-details">
+              <strong>Sara Kim</strong>
+              <p>That travel photo was amazing!</p>
+            </div>
+            <div class="chat-meta">
+              <span class="time">1h</span>
+              <span class="badge">1</span>
+            </div>
+          </div>
+
+          <div class="chat-item" data-name="David Patel">
+            <div class="person-avatar d">D</div>
+            <div class="chat-details">
+              <strong>David Patel</strong>
+              <p>Let’s talk later about the event.</p>
+            </div>
+            <div class="chat-meta">
+              <span class="time">Yesterday</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="chat-window">
+        <div class="chat-header">
+          <div class="person-avatar a" id="activeAvatar">M</div>
+          <div>
+            <strong id="activeName">Mia Chen</strong>
+            <span>● Online</span>
+          </div>
+        </div>
+
+        <div class="messages" id="messages">
+          <div class="message">
+            <div class="person-avatar a">M</div>
+            <div>
+              <div class="bubble">Hey! Are you joining the music room tonight?</div>
+              <div class="message-time">2:04 PM</div>
+            </div>
+          </div>
+
+          <div class="message me">
+            <div class="person-avatar">Y</div>
+            <div>
+              <div class="bubble">Yes! I’ll join in a few minutes 🎧</div>
+              <div class="message-time">2:06 PM</div>
+            </div>
+          </div>
+
+          <div class="message">
+            <div class="person-avatar a">M</div>
+            <div>
+              <div class="bubble">Perfect. There are already a lot of people there.</div>
+              <div class="message-time">2:08 PM</div>
+            </div>
+          </div>
+        </div>
+
+        <form class="composer" id="messageForm">
+          <input type="text" id="messageInput" placeholder="Write a message…" autocomplete="off" />
+          <button class="send-btn" type="submit">Send</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resize() {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      createParticles();
+    }
+
+    function createParticles() {
+      const count = Math.min(90, Math.floor((canvas.width * canvas.height) / 18000));
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.7 + 0.5,
+        vx: (Math.random() - 0.5) * 0.22,
+        vy: (Math.random() - 0.5) * 0.22,
+        hue: Math.random() < 0.5 ? 210 : 320,
+        alpha: Math.random() * 0.35 + 0.15
+      }));
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
+        glow.addColorStop(0, `hsla(${p.hue}, 100%, 70%, ${p.alpha})`);
+        glow.addColorStop(1, "transparent");
+
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    addEventListener("resize", resize);
+    resize();
+    animate();
+
+    const chatItems = document.querySelectorAll(".chat-item");
+    const activeName = document.getElementById("activeName");
+    const activeAvatar = document.getElementById("activeAvatar");
+    const messages = document.getElementById("messages");
+
+    chatItems.forEach(item => {
+      item.addEventListener("click", () => {
+        chatItems.forEach(i => i.classList.remove("active"));
+        item.classList.add("active");
+
+        const name = item.dataset.name;
+        const initial = name.charAt(0);
+
+        activeName.textContent = name;
+        activeAvatar.textContent = initial;
+
+        messages.innerHTML = `
+          <div class="message">
+            <div class="person-avatar">${initial}</div>
+            <div>
+              <div class="bubble">Hi! This is the beginning of your conversation with ${name}.</div>
+              <div class="message-time">Just now</div>
+            </div>
+          </div>
+        `;
+      });
+    });
+
+    document.getElementById("messageForm").addEventListener("submit", e => {
+      e.preventDefault();
+
+      const input = document.getElementById("messageInput");
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      const time = new Date().toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+
+      messages.insertAdjacentHTML(
+        "beforeend",
+        `
+        <div class="message me">
+          <div class="person-avatar">Y</div>
+          <div>
+            <div class="bubble"></div>
+            <div class="message-time">${time}</div>
+          </div>
+        </div>
+        `
+      );
+
+      messages.lastElementChild.querySelector(".bubble").textContent = text;
+      input.value = "";
+      messages.scrollTop = messages.scrollHeight;
+    });
+  </script>
+</body>
+</html>
