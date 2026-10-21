@@ -65,15 +65,16 @@
     }
 
     .logo {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -.04em;
-      background: linear-gradient(90deg, var(--yellow), var(--orange), var(--pink), var(--purple), var(--blue));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      cursor: pointer;
-    }
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  background: linear-gradient(90deg, var(--yellow), var(--orange), var(--pink), var(--purple), var(--blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  cursor: pointer;
+  text-decoration: none;
+}
 
     .header-actions {
       display: flex;
@@ -388,7 +389,7 @@
 
   <div class="app">
     <header>
-      <div class="logo" onclick="location.href='home.html'">Meet</div>
+      <a class="logo" href="home.html">Meet</a>
       <div class="header-actions">
         <a class="back-home" href="home.html">← Back to Home</a>
         <button class="icon-btn">🔔</button>
