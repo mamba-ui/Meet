@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meet — Sign up</title>
+  <style>
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: #f5f5f7;
+      background: #08080d;
+    }
 
+    .card {
+      width: min(420px, calc(100% - 32px));
+      padding: 34px 28px;
+      background: rgba(18, 18, 24, .72);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 24px;
+    }
+
+    h1 { text-align: center; margin-bottom: 20px; }
+
+    form { display: grid; gap: 14px; }
+
+    input {
+      height: 52px;
+      padding: 0 16px;
+      color: #f5f5f7;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 14px;
+      outline: none;
+    }
+
+    button {
+      height: 52px;
+      border: 0;
+      border-radius: 14px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(90deg, #3897f0, #8134af, #dd2a7b);
+    }
+
+    p { text-align: center; color: #a8a8b3; }
+
+    a { color: #3897f0; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Create your account</h1>
+
+    <form id="signupForm">
+      <input type="text" id="signupUsername" placeholder="Username" required />
+      <input type="email" id="signupEmail" placeholder="Email" required />
+      <input type="password" id="signupPassword" placeholder="Password" minlength="6" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm password" required />
+      <button type="submit">Sign up</button>
+    </form>
+
+    <p>
+      Already have an account?
+      <a href="index.html">Log in</a>
+    </p>
+  </main>
+
+  <script>
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("meetUsers") || "[]");
+    }
+
+    document.getElementById("signupForm").addEventListener("submit", e => {
+      e.preventDefault();
+
+      const username = document.getElementById("signupUsername").value.trim();
+      const email = document.getElementById("signupEmail").value.trim().toLowerCase();
+      const password = document.getElementById("signupPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      const users = getUsers();
+
+      const exists = users.some(u =>
+        u.username.toLowerCase() === username.toLowerCase() || u.email === email
+      );
+
+      if (exists) {
+        alert("An account with that username or email already exists.");
+        return;
+      }
+
+      users.push({ username, email, password });
+      localStorage.setItem("meetUsers", JSON.stringify(users));
+
+      alert("Account created! Please log in.");
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>
