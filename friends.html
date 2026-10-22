@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meet — Friends</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      color: #f2f4f8;
+      background: radial-gradient(circle at 15% 20%, #1b1035 0%, transparent 45%),
+                  radial-gradient(circle at 85% 10%, #0f2f4d 0%, transparent 40%),
+                  linear-gradient(160deg, #05060d 0%, #0a0d1a 55%, #05060d 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 100px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 22px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .logo span {
+      background: linear-gradient(90deg, #7c5cff, #22d3ee);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: #e6e9f2;
+      text-decoration: none;
+      font-size: 18px;
+      transition: .2s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(124,92,255,.22);
+      border-color: rgba(124,92,255,.5);
+      transform: translateY(-2px);
+    }
+
+    .glass {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 24px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .hero {
+      padding: 26px;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      color: #a9b1c4;
+      max-width: 640px;
+      line-height: 1.6;
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      background: rgba(124,92,255,.14);
+      border: 1px solid rgba(124,92,255,.35);
+      color: #d8ccff;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 20px;
+    }
+
+    .filter {
+      flex: 0 0 auto;
+      padding: 11px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: #cfd5e4;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .filter.active {
+      background: linear-gradient(90deg, #7c5cff, #22d3ee);
+      color: #04101c;
+      border-color: transparent;
+      box-shadow: 0 10px 30px rgba(124,92,255,.35);
+    }
+
+    .friends-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .friend-card {
+      padding: 22px;
+      text-align: center;
+      transition: .25s;
+    }
+
+    .friend-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(124,92,255,.45);
+      box-shadow: 0 25px 70px rgba(124,92,255,.18);
+    }
+
+    .avatar {
+      width: 78px;
+      height: 78px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, #7c5cff, #22d3ee);
+      box-shadow: 0 0 0 4px rgba(124,92,255,.15), 0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .friend-card h3 {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .handle {
+      color: #8f97ab;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .bio {
+      color: #b7bfce;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 18px;
+    }
+
+    .tag {
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: rgba(34,211,238,.12);
+      border: 1px solid rgba(34,211,238,.28);
+      color: #9ee7f5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 11px 12px;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .2s;
+    }
+
+    .btn-primary {
+      color: #04101c;
+      background: linear-gradient(90deg, #7c5cff, #22d3ee);
+      box-shadow: 0 12px 30px rgba(124,92,255,.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.14);
+      color: #e5e9f3;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,.13);
+    }
+
+    .requested {
+      background: rgba(255,255,255,.09) !important;
+      color: #b7bfce !important;
+      box-shadow: none !important;
+    }
+
+    .requests {
+      padding: 22px;
+      margin-bottom: 22px;
+    }
+
+    .requests h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .request {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 12px;
+    }
+
+    .request .avatar {
+      width: 48px;
+      height: 48px;
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .request-info {
+      flex: 1;
+      text-align: left;
+    }
+
+    .request-info strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .request-info span {
+      font-size: 13px;
+      color: #98a1b3;
+    }
+
+    .request-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .small-btn {
+      padding: 9px 14px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .accept {
+      background: linear-gradient(90deg, #7c5cff, #22d3ee);
+      color: #04101c;
+    }
+
+    .decline {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      color: #dfe4ee;
+    }
+
+    .empty {
+      text-align: center;
+      color: #98a1b3;
+      padding: 40px;
+      display: none;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 22px;
+      z-index: 5;
+    }
+
+    .bottom-nav a {
+      width: 52px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      color: #aab2c2;
+      text-decoration: none;
+      font-size: 20px;
+      transition: .2s;
+    }
+
+    .bottom-nav a:hover,
+    .bottom-nav a.active {
+      background: rgba(124,92,255,.2);
+      color: white;
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 18px 14px 100px;
+      }
+
+      .hero {
+        padding: 20px;
+      }
+
+      .request {
+        flex-wrap: wrap;
+      }
+
+      .request-actions {
+        width: 100%;
+      }
+
+      .request-actions .small-btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<main class="app">
+  <header class="topbar">
+    <a class="logo" href="home.html">Meet<span>.</span></a>
+
+    <div class="top-actions">
+      <a class="icon-btn" href="messages.html" title="Messages">💬</a>
+      <a class="icon-btn" href="home.html" title="Home">🏠</a>
+    </div>
+  </header>
+
+  <section class="hero glass">
+    <h1>Your Friends</h1>
+    <p>Find people you already know, accept new requests, and start a conversation with one tap.</p>
+
+    <div class="hero-stats">
+      <div class="stat">👥 <span id="friendCount">6</span> friends</div>
+      <div class="stat">🟢 <span id="onlineCount">3</span> online</div>
+      <div class="stat">✉️ <span id="requestCount">2</span> requests</div>
+    </div>
+  </section>
+
+  <section class="requests glass" id="requestsPanel">
+    <h2>Friend Requests</h2>
+
+    <div class="request" data-name="Alex Rivera">
+      <div class="avatar">A</div>
+      <div class="request-info">
+        <strong>Alex Rivera</strong>
+        <span>@alexrivera · 2 mutual friends</span>
+      </div>
+      <div class="request-actions">
+        <button class="small-btn accept">Accept</button>
+        <button class="small-btn decline">Decline</button>
+      </div>
+    </div>
+
+    <div class="request" data-name="Nora Blake">
+      <div class="avatar">N</div>
+      <div class="request-info">
+        <strong>Nora Blake</strong>
+        <span>@norablake · 5 mutual friends</span>
+      </div>
+      <div class="request-actions">
+        <button class="small-btn accept">Accept</button>
+        <button class="small-btn decline">Decline</button>
+      </div>
+    </div>
+
+    <p class="empty" id="requestsEmpty">No pending friend requests right now.</p>
+  </section>
+
+  <div class="filters">
+    <button class="filter active" data-filter="all">All friends</button>
+    <button class="filter" data-filter="online">Online</button>
+    <button class="filter" data-filter="close">Close friends</button>
+    <button class="filter" data-filter="new">New matches</button>
+  </div>
+
+  <section class="friends-grid" id="friendsGrid">
+
+    <article class="friend-card glass" data-type="online close">
+      <div class="avatar">M</div>
+      <h3>Mia Chen</h3>
+      <div class="handle">@miachen · Online now</div>
+      <p class="bio">Music lover, coffee explorer, and always up for a late-night chat.</p>
+      <div class="tags">
+        <span class="tag">Music</span>
+        <span class="tag">Travel</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="messages.html">Message</a>
+        <button class="btn btn-ghost remove">Remove</button>
+      </div>
+    </article>
+
+    <article class="friend-card glass" data-type="online">
+      <div class="avatar">J</div>
+      <h3>Jordan Lee</h3>
+      <div class="handle">@jordanlee · Online now</div>
+      <p class="bio">Basketball, gaming, and building random projects on weekends.</p>
+      <div class="tags">
+        <span class="tag">Gaming</span>
+        <span class="tag">Sports</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="messages.html">Message</a>
+        <button class="btn btn-ghost remove">Remove</button>
+      </div>
+    </article>
+
+    <article class="friend-card glass" data-type="close">
+      <div class="avatar">S</div>
+      <h3>Sara Ahmed</h3>
+      <div class="handle">@saraahmed · Last seen 2h ago</div>
+      <p class="bio">Photographer and design student. I like quiet places and good playlists.</p>
+      <div class="tags">
+        <span class="tag">Photography</span>
+        <span class="tag">Design</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="messages.html">Message</a>
+        <button class="btn btn-ghost remove">Remove</button>
+      </div>
+    </article>
+
+    <article class="friend-card glass" data-type="new">
+      <div class="avatar">D</div>
+      <h3>David Park</h3>
+      <div class="handle">@davidpark · New match</div>
+      <p class="bio">Tech enthusiast, movie fan, and beginner chef. Let’s talk about anything.</p>
+      <div class="tags">
+        <span class="tag">Tech</span>
+        <span class="tag">Movies</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="messages.html">Message</a>
+        <button class="btn btn-ghost remove">Remove</button>
+      </div>
+    </article>
+
+    <article class="friend-card glass" data-type="online close">
+      <div class="avatar">L</div>
+      <h3>Lina Torres</h3>
+      <div class="handle">@linatorres · Online now</div>
+      <p class="bio">Dancer, reader, and big fan of sunset walks and good food.</p>
+      <div class="tags">
+        <span class="tag">Dance</span>
+        <span class="tag">Books</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="messages.html">Message</a>
+        <button class="btn btn-ghost remove">Remove</button>
+      </div>
+    </article>
+
+    <article class="friend-card glass" data-type="new">
+      <div class="avatar">O</div>
+      <h3>Omar Haddad</h3>
+      <div class="handle">@omarhaddad · New match</div>
+      <p class="bio">Football, coding, and finding the best street food in every city.</p>
+      <div class="tags">
+        <span class="tag">Football</span>
+        <span class="tag">Coding</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="messages.html">Message</a>
+        <button class="btn btn-ghost remove">Remove</button>
+      </div>
+    </article>
+
+  </section>
+
+  <p class="empty glass" id="friendsEmpty">No friends match this filter.</p>
+
+  <nav class="bottom-nav glass">
+    <a href="home.html" title="Home">🏠</a>
+    <a href="friends.html" class="active" title="Friends">👥</a>
+    <a href="messages.html" title="Messages">💬</a>
+    <a href="home.html" title="Profile">👤</a>
+  </nav>
+</main>
+
+<script>
+  // Filters
+  const filters = document.querySelectorAll(".filter");
+  const cards = document.querySelectorAll(".friend-card");
+  const friendsEmpty = document.getElementById("friendsEmpty");
+
+  filters.forEach(button => {
+    button.addEventListener("click", () => {
+      filters.forEach(f => f.classList.remove("active"));
+      button.classList.add("active");
+
+      const type = button.dataset.filter;
+      let visible = 0;
+
+      cards.forEach(card => {
+        const show = type === "all" || card.dataset.type.includes(type);
+        card.style.display = show ? "" : "none";
+        if (show) visible++;
+      });
+
+      friendsEmpty.style.display = visible ? "none" : "block";
+    });
+  });
+
+  // Remove friend
+  document.querySelectorAll(".remove").forEach(button => {
+    button.addEventListener("click", () => {
+      button.closest(".friend-card").remove();
+      updateCounts();
+    });
+  });
+
+  // Friend requests
+  const requestsPanel = document.getElementById("requestsPanel");
+  const requestsEmpty = document.getElementById("requestsEmpty");
+
+  document.querySelectorAll(".accept").forEach(button => {
+    button.addEventListener("click", () => {
+      const request = button.closest(".request");
+      request.remove();
+      updateCounts();
+    });
+  });
+
+  document.querySelectorAll(".decline").forEach(button => {
+    button.addEventListener("click", () => {
+      button.closest(".request").remove();
+      updateCounts();
+    });
+  });
+
+  function updateCounts() {
+    const remainingCards = document.querySelectorAll(".friend-card").length;
+    const remainingRequests = document.querySelectorAll(".request").length;
+    const online = document.querySelectorAll('.friend-card[data-type*="online"]').length;
+
+    document.getElementById("friendCount").textContent = remainingCards;
+    document.getElementById("onlineCount").textContent = online;
+    document.getElementById("requestCount").textContent = remainingRequests;
+
+    if (!remainingRequests) {
+      requestsEmpty.style.display = "block";
+    }
+
+    if (!remainingCards) {
+      friendsEmpty.style.display = "block";
+    }
+  }
+
+  // Glowing particles
+  const canvas = document.getElementById("particles");
+  const ctx = canvas.getContext("2d");
+  let particles = [];
+
+  function resize() {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  }
+
+  function createParticles() {
+    particles = Array.from({ length: Math.min(80, Math.floor(innerWidth / 16)) }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2.2 + 0.6,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      hue: Math.random() > 0.5 ? "124,92,255" : "34,211,238"
+    }));
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+
+      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+      const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
+      glow.addColorStop(0, `rgba(${p.hue}, .75)`);
+      glow.addColorStop(1, `rgba(${p.hue}, 0)`);
+
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 7, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  resize();
+  createParticles();
+  animate();
+
+  addEventListener("resize", () => {
+    resize();
+    createParticles();
+  });
+
+  updateCounts();
+</script>
+
+</body>
+</html>
