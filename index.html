@@ -3,979 +3,1011 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090911" />
   <title>Meet — Log in</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --ig-blue: #3897f0;
-      --ig-purple: #8134af;
-      --ig-pink: #dd2a7b;
-      --ig-orange: #f58529;
-      --ig-yellow: #feda77;
-      --text: #f5f5f7;
-      --muted: #a8a8b3;
-      --card: rgba(18, 18, 24, 0.72);
-      --border: rgba(255, 255, 255, 0.12);
-    }
-
-    body {
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      color: var(--text);
-      background:
-        radial-gradient(900px 600px at 15% 15%, rgba(221, 42, 123, .28), transparent 60%),
-        radial-gradient(800px 600px at 85% 20%, rgba(129, 52, 175, .30), transparent 60%),
-        radial-gradient(900px 700px at 50% 100%, rgba(56, 151, 240, .25), transparent 65%),
-        #08080d;
-      overflow: hidden;
-    }
-
-    canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-    }
-
-    .glow-orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: .45;
-      z-index: 0;
-      animation: float 14s ease-in-out infinite;
-    }
-
-    .orb-1 {
-      width: 340px; height: 340px;
-      top: -80px; left: -80px;
-      background: linear-gradient(135deg, var(--ig-pink), var(--ig-orange));
-    }
-
-    .orb-2 {
-      width: 420px; height: 420px;
-      bottom: -140px; right: -100px;
-      background: linear-gradient(135deg, var(--ig-blue), var(--ig-purple));
-      animation-delay: -6s;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-      50% { transform: translate3d(30px, -35px, 0) scale(1.08); }
-    }
-
-    .page {
-      position: relative;
-      z-index: 2;
-      width: min(420px, calc(100% - 32px));
-      padding: 24px 0 48px;
-    }
-
-    .brand {
-      text-align: center;
-      margin-bottom: 22px;
-    }
-
-    .brand h1 {
-      font-size: 44px;
-      font-weight: 700;
-      letter-spacing: -.04em;
-      background: linear-gradient(90deg, var(--ig-yellow), var(--ig-orange), var(--ig-pink), var(--ig-purple), var(--ig-blue));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      filter: drop-shadow(0 0 24px rgba(221, 42, 123, .35));
-    }
-
-    .brand p {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .card {
-      position: relative;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 34px 28px;
-      backdrop-filter: blur(22px);
-      box-shadow:
-        0 30px 80px rgba(0, 0, 0, .55),
-        0 0 0 1px rgba(255, 255, 255, .03) inset;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -2px;
-      background: conic-gradient(
-        from var(--angle, 0deg),
-        transparent 0deg,
-        rgba(56, 151, 240, .8) 60deg,
-        rgba(221, 42, 123, .8) 140deg,
-        rgba(254, 218, 119, .7) 220deg,
-        transparent 320deg
-      );
-      border-radius: inherit;
-      z-index: -1;
-      animation: rotateGlow 7s linear infinite;
-      opacity: .55;
-      filter: blur(18px);
-    }
-
-    @property --angle {
-      syntax: "<angle>";
-      initial-value: 0deg;
-      inherits: false;
-    }
-
-    @keyframes rotateGlow {
-      to { --angle: 360deg; }
-    }
-
-    .card h2 {
-      font-size: 22px;
-      margin-bottom: 6px;
-    }
-
-    .card .subtitle {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-
-    form { display: grid; gap: 14px; }
-
-    .field {
-      position: relative;
-    }
-
-    input {
-      width: 100%;
-      height: 52px;
-      padding: 0 46px 0 16px;
-      color: var(--text);
-      font-size: 15px;
-      background: rgba(255, 255, 255, .05);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s, background .2s;
-    }
-
-    input::placeholder { color: #77778a; }
-
-    input:focus {
-      border-color: rgba(56, 151, 240, .8);
-      background: rgba(56, 151, 240, .08);
-      box-shadow: 0 0 0 4px rgba(56, 151, 240, .16);
-    }
-
-    .toggle-password {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: 0;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 6px;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .remember {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-
-    .remember input {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--ig-blue);
-    }
-
-    a {
-      color: var(--ig-blue);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    a:hover { text-decoration: underline; }
-
-    button.login {
-      height: 52px;
-      border: 0;
-      border-radius: 14px;
-      color: white;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      background: linear-gradient(90deg, var(--ig-blue), var(--ig-purple), var(--ig-pink), var(--ig-orange));
-      background-size: 250% 100%;
-      transition: transform .15s ease, box-shadow .2s ease, background-position .5s ease;
-      box-shadow: 0 12px 30px rgba(221, 42, 123, .25);
-    }
-
-    button.login:hover {
-      transform: translateY(-1px);
-      background-position: 100% 0;
-      box-shadow: 0 16px 40px rgba(129, 52, 175, .35);
-    }
-
-    button.login:active { transform: translateY(0); }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 12px;
-      margin: 20px 0 16px;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: "";
-      height: 1px;
-      flex: 1;
-      background: var(--border);
-    }
-
-    .social {
-      display: grid;
-      gap: 10px;
-    }
-
-    .social button {
-      height: 48px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, .04);
-      color: var(--text);
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .2s, border-color .2s;
-    }
-
-    .social button:hover {
-      background: rgba(255, 255, 255, .08);
-      border-color: rgba(255, 255, 255, .2);
-    }
-
-    .signup {
-      margin-top: 22px;
-      text-align: center;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .footer {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 12px;
-      color: #6f6f7d;
-    }
-
-    @media (max-width: 420px) {
-      .brand h1 { font-size: 36px; }
-      .card { padding: 28px 20px; }
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <canvas id="particles"></canvas>
-  <div class="glow-orb orb-1"></div>
-  <div class="glow-orb orb-2"></div>
+  <div class="background-glow glow-one" aria-hidden="true"></div>
+  <div class="background-glow glow-two" aria-hidden="true"></div>
 
-  <main class="page">
-    <div class="brand">
-      <h1>Meet</h1>
-      <p>Meet people. Start conversations. Stay connected.</p>
-    </div>
+  <main class="auth-card" id="authCard">
+    <section class="welcome-panel" aria-label="Welcome to Meet">
+      <a class="brand" href="#" aria-label="Meet home">Meet<span>.</span></a>
 
-    <section class="card">
-      <h2>Welcome back</h2>
-      <p class="subtitle">Log in to continue to Meet.</p>
-
-      <form id="loginForm">
-        <div class="field">
-          <input type="text" id="username" placeholder="Phone number, username, or email" autocomplete="username" required />
-        </div>
-
-        <div class="field">
-          <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
-          <button type="button" class="toggle-password" id="togglePassword">Show</button>
-        </div>
-
-        <div class="row">
-          <label class="remember">
-            <input type="checkbox" id="remember" />
-            Remember me
-          </label>
-          <a href="#">Forgot password?</a>
-        </div>
-
-        <button class="login" type="submit">Log in</button>
-      </form>
-
-      <div class="divider">OR</div>
-
-      <div class="social">
-        <button type="button">Continue with Google</button>
-        <button type="button">Continue with Apple</button>
+      <div class="welcome-copy">
+        <p class="eyebrow">A little closer, every day</p>
+        <h1><span id="typedWelcome">Good to see you again.</span><span class="typing-cursor" aria-hidden="true"></span></h1>
+        <p class="welcome-description">
+          Meet people, start conversations, and stay connected to the people who matter.
+        </p>
       </div>
 
-      <p class="signup">
-        Don’t have an account? <a href="signup.html">Sign up</a>
-      </p>
+      <p class="panel-note">Thoughtful conversations start here.</p>
     </section>
 
-    <p class="footer">By continuing, you agree to Meet’s Terms of Service and Privacy Policy.</p>
-  </main>
-
-  <script>
-    const canvas = document.getElementById("particles");
-    const ctx = canvas.getContext("2d");
-
-    let particles = [];
-    let mouse = { x: null, y: null };
-
-    function resize() {
-      canvas.width = innerWidth;
-      canvas.height = innerHeight;
-      createParticles();
-    }
-
-    function createParticles() {
-      const count = Math.min(130, Math.floor((canvas.width * canvas.height) / 13000));
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2.2 + 0.6,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        hue: Math.random() < 0.5 ? 210 : 320,
-        alpha: Math.random() * 0.5 + 0.25
-      }));
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
-        glow.addColorStop(0, `hsla(${p.hue}, 100%, 70%, ${p.alpha})`);
-        glow.addColorStop(1, "transparent");
-
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 85%, ${Math.min(1, p.alpha + 0.25)})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i];
-          const b = particles[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-
-          if (dist < 110) {
-            ctx.strokeStyle = `rgba(160, 170, 255, ${(1 - dist / 110) * 0.16})`;
-            ctx.lineWidth = 0.7;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      requestAnimationFrame(animate);
-    }
-
-    addEventListener("resize", resize);
-    addEventListener("mousemove", e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-
-      for (const p of particles) {
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < 120) {
-          p.x += dx / dist * 0.7;
-          p.y += dy / dist * 0.7;
-        }
-      }
-    });
-
-    document.getElementById("togglePassword").addEventListener("click", function () {
-      const password = document.getElementById("password");
-      const showing = password.type === "text";
-      password.type = showing ? "password" : "text";
-      this.textContent = showing ? "Show" : "Hide";
-    });
-
-    function getUsers() {
-      return JSON.parse(localStorage.getItem("meetUsers") || "[]");
-    }
-
-    document.getElementById("loginForm").addEventListener("submit", e => {
-      e.preventDefault();
-
-      const enteredName = document.getElementById("username").value.trim().toLowerCase();
-      const enteredPassword = document.getElementById("password").value;
-
-      if (!enteredName || !enteredPassword) {
-        alert("Please enter your username/email and password.");
-        return;
-      }
-
-      const users = getUsers();
-
-      const matchedUser = users.find(user =>
-        (user.username.toLowerCase() === enteredName || user.email.toLowerCase() === enteredName) &&
-        user.password === enteredPassword
-      );
-
-      if (!matchedUser) {
-        alert("No account found with those details. Please sign up first.");
-        return;
-      }
-
-      localStorage.setItem("meetCurrentUser", JSON.stringify({
-        username: matchedUser.username,
-        email: matchedUser.email
-      }));
-
-      window.location.href = "home.html";
-    });
-
-    resize();
-    animate();
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meet — Log in</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --ig-blue: #3897f0;
-      --ig-purple: #8134af;
-      --ig-pink: #dd2a7b;
-      --ig-orange: #f58529;
-      --ig-yellow: #feda77;
-      --text: #f5f5f7;
-      --muted: #a8a8b3;
-      --card: rgba(18, 18, 24, 0.72);
-      --border: rgba(255, 255, 255, 0.12);
-    }
-
-    body {
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      color: var(--text);
-      background:
-        radial-gradient(900px 600px at 15% 15%, rgba(221, 42, 123, .28), transparent 60%),
-        radial-gradient(800px 600px at 85% 20%, rgba(129, 52, 175, .30), transparent 60%),
-        radial-gradient(900px 700px at 50% 100%, rgba(56, 151, 240, .25), transparent 65%),
-        #08080d;
-      overflow: hidden;
-    }
-
-    canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-    }
-
-    .glow-orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: .45;
-      z-index: 0;
-      animation: float 14s ease-in-out infinite;
-    }
-
-    .orb-1 {
-      width: 340px; height: 340px;
-      top: -80px; left: -80px;
-      background: linear-gradient(135deg, var(--ig-pink), var(--ig-orange));
-    }
-
-    .orb-2 {
-      width: 420px; height: 420px;
-      bottom: -140px; right: -100px;
-      background: linear-gradient(135deg, var(--ig-blue), var(--ig-purple));
-      animation-delay: -6s;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-      50% { transform: translate3d(30px, -35px, 0) scale(1.08); }
-    }
-
-    .page {
-      position: relative;
-      z-index: 2;
-      width: min(420px, calc(100% - 32px));
-      padding: 24px 0 48px;
-    }
-
-    .brand {
-      text-align: center;
-      margin-bottom: 22px;
-    }
-
-    .brand h1 {
-      font-size: 44px;
-      font-weight: 700;
-      letter-spacing: -.04em;
-      background: linear-gradient(90deg, var(--ig-yellow), var(--ig-orange), var(--ig-pink), var(--ig-purple), var(--ig-blue));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      filter: drop-shadow(0 0 24px rgba(221, 42, 123, .35));
-    }
-
-    .brand p {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .card {
-      position: relative;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 34px 28px;
-      backdrop-filter: blur(22px);
-      box-shadow:
-        0 30px 80px rgba(0, 0, 0, .55),
-        0 0 0 1px rgba(255, 255, 255, .03) inset;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -2px;
-      background: conic-gradient(
-        from var(--angle, 0deg),
-        transparent 0deg,
-        rgba(56, 151, 240, .8) 60deg,
-        rgba(221, 42, 123, .8) 140deg,
-        rgba(254, 218, 119, .7) 220deg,
-        transparent 320deg
-      );
-      border-radius: inherit;
-      z-index: -1;
-      animation: rotateGlow 7s linear infinite;
-      opacity: .55;
-      filter: blur(18px);
-    }
-
-    @property --angle {
-      syntax: "<angle>";
-      initial-value: 0deg;
-      inherits: false;
-    }
-
-    @keyframes rotateGlow {
-      to { --angle: 360deg; }
-    }
-
-    .card h2 {
-      font-size: 22px;
-      margin-bottom: 6px;
-    }
-
-    .card .subtitle {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-
-    form { display: grid; gap: 14px; }
-
-    .field {
-      position: relative;
-    }
-
-    input {
-      width: 100%;
-      height: 52px;
-      padding: 0 46px 0 16px;
-      color: var(--text);
-      font-size: 15px;
-      background: rgba(255, 255, 255, .05);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s, background .2s;
-    }
-
-    input::placeholder { color: #77778a; }
-
-    input:focus {
-      border-color: rgba(56, 151, 240, .8);
-      background: rgba(56, 151, 240, .08);
-      box-shadow: 0 0 0 4px rgba(56, 151, 240, .16);
-    }
-
-    .toggle-password {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: 0;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 6px;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .remember {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-
-    .remember input {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--ig-blue);
-    }
-
-    a {
-      color: var(--ig-blue);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    a:hover { text-decoration: underline; }
-
-    button.login {
-      height: 52px;
-      border: 0;
-      border-radius: 14px;
-      color: white;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      background: linear-gradient(90deg, var(--ig-blue), var(--ig-purple), var(--ig-pink), var(--ig-orange));
-      background-size: 250% 100%;
-      transition: transform .15s ease, box-shadow .2s ease, background-position .5s ease;
-      box-shadow: 0 12px 30px rgba(221, 42, 123, .25);
-    }
-
-    button.login:hover {
-      transform: translateY(-1px);
-      background-position: 100% 0;
-      box-shadow: 0 16px 40px rgba(129, 52, 175, .35);
-    }
-
-    button.login:active { transform: translateY(0); }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 12px;
-      margin: 20px 0 16px;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: "";
-      height: 1px;
-      flex: 1;
-      background: var(--border);
-    }
-
-    .social {
-      display: grid;
-      gap: 10px;
-    }
-
-    .social button {
-      height: 48px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, .04);
-      color: var(--text);
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .2s, border-color .2s;
-    }
-
-    .social button:hover {
-      background: rgba(255, 255, 255, .08);
-      border-color: rgba(255, 255, 255, .2);
-    }
-
-    .signup {
-      margin-top: 22px;
-      text-align: center;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .footer {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 12px;
-      color: #6f6f7d;
-    }
-
-    @media (max-width: 420px) {
-      .brand h1 { font-size: 36px; }
-      .card { padding: 28px 20px; }
-    }
-  </style>
-</head>
-<body>
-  <canvas id="particles"></canvas>
-  <div class="glow-orb orb-1"></div>
-  <div class="glow-orb orb-2"></div>
-
-  <main class="page">
-    <div class="brand">
-      <h1>Meet</h1>
-      <p>Meet people. Start conversations. Stay connected.</p>
-    </div>
-
-    <section class="card">
-      <h2>Welcome back</h2>
-      <p class="subtitle">Log in to continue to Meet.</p>
-
-      <form id="loginForm">
-        <div class="field">
-          <input type="text" id="username" placeholder="Phone number, username, or email" autocomplete="username" required />
-        </div>
-
-        <div class="field">
-          <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
-          <button type="button" class="toggle-password" id="togglePassword">Show</button>
-        </div>
-
-        <div class="row">
-          <label class="remember">
-            <input type="checkbox" id="remember" />
-            Remember me
+    <section class="form-panel" aria-label="Account access">
+      <div class="form-stage">
+        <form class="auth-form login-form" id="loginForm" novalidate>
+          <div class="form-heading">
+            <p class="eyebrow">Welcome back</p>
+            <h2>Log in to Meet</h2>
+            <p>Enter your account details to continue.</p>
+          </div>
+
+          <div class="field">
+            <label for="loginIdentifier">Email or username</label>
+            <input
+              id="loginIdentifier"
+              name="identifier"
+              type="text"
+              autocomplete="username"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="loginPassword">Password</label>
+            <div class="password-wrap">
+              <input
+                id="loginPassword"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Enter your password"
+                required
+              />
+              <button class="password-toggle" type="button" data-toggle-password="loginPassword" aria-label="Show password">
+                Show
+              </button>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" id="rememberMe" />
+              <span>Remember me</span>
+            </label>
+            <button class="text-button" type="button" data-message="Password recovery is not set up in this demo.">
+              Forgot password?
+            </button>
+          </div>
+
+          <button class="primary-button" type="submit">Log in</button>
+
+          <p class="form-message" id="loginMessage" role="status" aria-live="polite"></p>
+
+          <p class="switch-copy">
+            New to Meet?
+            <button class="text-button switch-button" type="button" data-show-signup>Create an account</button>
+          </p>
+        </form>
+
+        <form class="auth-form signup-form" id="signupForm" novalidate>
+          <div class="form-heading">
+            <p class="eyebrow">Get started</p>
+            <h2>Create your account</h2>
+            <p>Fill in the details below to join Meet.</p>
+          </div>
+
+          <div class="field">
+            <label for="signupUsername">Username</label>
+            <input
+              id="signupUsername"
+              name="username"
+              type="text"
+              autocomplete="username"
+              placeholder="Choose a username"
+              minlength="3"
+              maxlength="24"
+              required
+            />
+            <small>3–24 characters: letters, numbers, dots, or underscores.</small>
+          </div>
+
+          <div class="field">
+            <label for="signupEmail">Email address</label>
+            <input
+              id="signupEmail"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="signupPassword">Password</label>
+            <div class="password-wrap">
+              <input
+                id="signupPassword"
+                name="password"
+                type="password"
+                autocomplete="new-password"
+                placeholder="Create a password"
+                minlength="8"
+                required
+              />
+              <button class="password-toggle" type="button" data-toggle-password="signupPassword" aria-label="Show password">
+                Show
+              </button>
+            </div>
+            <small>At least 8 characters, including a letter and a number.</small>
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">Confirm password</label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autocomplete="new-password"
+              placeholder="Enter your password again"
+              required
+            />
+          </div>
+
+          <label class="checkbox-label terms-label">
+            <input type="checkbox" id="acceptTerms" required />
+            <span>I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.</span>
           </label>
-          <a href="#">Forgot password?</a>
-        </div>
 
-        <button class="login" type="submit">Log in</button>
-      </form>
+          <button class="primary-button" type="submit">Create account</button>
 
-      <div class="divider">OR</div>
+          <p class="form-message" id="signupMessage" role="status" aria-live="polite"></p>
 
-      <div class="social">
-        <button type="button">Continue with Google</button>
-        <button type="button">Continue with Apple</button>
+          <p class="switch-copy">
+            Already have an account?
+            <button class="text-button switch-button" type="button" data-show-login>Log in</button>
+          </p>
+        </form>
       </div>
-
-      <p class="signup">
-        Don’t have an account? <a href="signup.html">Sign up</a>
-      </p>
     </section>
-
-    <p class="footer">By continuing, you agree to Meet’s Terms of Service and Privacy Policy.</p>
   </main>
 
-  <script>
-    const canvas = document.getElementById("particles");
-    const ctx = canvas.getContext("2d");
-
-    let particles = [];
-    let mouse = { x: null, y: null };
-
-    function resize() {
-      canvas.width = innerWidth;
-      canvas.height = innerHeight;
-      createParticles();
-    }
-
-    function createParticles() {
-      const count = Math.min(130, Math.floor((canvas.width * canvas.height) / 13000));
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2.2 + 0.6,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        hue: Math.random() < 0.5 ? 210 : 320,
-        alpha: Math.random() * 0.5 + 0.25
-      }));
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
-        glow.addColorStop(0, `hsla(${p.hue}, 100%, 70%, ${p.alpha})`);
-        glow.addColorStop(1, "transparent");
-
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 85%, ${Math.min(1, p.alpha + 0.25)})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i];
-          const b = particles[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-
-          if (dist < 110) {
-            ctx.strokeStyle = `rgba(160, 170, 255, ${(1 - dist / 110) * 0.16})`;
-            ctx.lineWidth = 0.7;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      requestAnimationFrame(animate);
-    }
-
-    addEventListener("resize", resize);
-    addEventListener("mousemove", e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-
-      for (const p of particles) {
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < 120) {
-          p.x += dx / dist * 0.7;
-          p.y += dy / dist * 0.7;
-        }
-      }
-    });
-
-    document.getElementById("togglePassword").addEventListener("click", function () {
-      const password = document.getElementById("password");
-      const showing = password.type === "text";
-      password.type = showing ? "password" : "text";
-      this.textContent = showing ? "Show" : "Hide";
-    });
-
-    function getUsers() {
-      return JSON.parse(localStorage.getItem("meetUsers") || "[]");
-    }
-
-    document.getElementById("loginForm").addEventListener("submit", e => {
-      e.preventDefault();
-
-      const enteredName = document.getElementById("username").value.trim().toLowerCase();
-      const enteredPassword = document.getElementById("password").value;
-
-      if (!enteredName || !enteredPassword) {
-        alert("Please enter your username/email and password.");
-        return;
-      }
-
-      const users = getUsers();
-
-      const matchedUser = users.find(user =>
-        (user.username.toLowerCase() === enteredName || user.email.toLowerCase() === enteredName) &&
-        user.password === enteredPassword
-      );
-
-      if (!matchedUser) {
-        alert("No account found with those details. Please sign up first.");
-        return;
-      }
-
-      localStorage.setItem("meetCurrentUser", JSON.stringify({
-        username: matchedUser.username,
-        email: matchedUser.email
-      }));
-
-      window.location.href = "home.html";
-    });
-
-    resize();
-    animate();
-  </script>
+  <p class="page-footer">A more connected world starts with a conversation.</p>
 </body>
 </html>
+```
+
+### `style.css`
+
+```css
+:root {
+  color-scheme: dark;
+  --background: #090911;
+  --surface: rgba(19, 19, 29, 0.88);
+  --text: #f5f5f8;
+  --muted: #a2a2b2;
+  --border: rgba(255, 255, 255, 0.12);
+  --blue: #55a7ff;
+  --pink: #e454a0;
+  --purple: #9364e8;
+  --error: #ff8585;
+  --success: #71d7a4;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 36px 20px;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at 10% 10%, rgba(228, 84, 160, 0.15), transparent 36%),
+    radial-gradient(ellipse at 90% 85%, rgba(85, 167, 255, 0.15), transparent 38%),
+    var(--background);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+.background-glow {
+  position: fixed;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.2;
+  pointer-events: none;
+  animation: drift 16s ease-in-out infinite alternate;
+}
+
+.glow-one {
+  top: -130px;
+  left: -100px;
+  background: var(--pink);
+}
+
+.glow-two {
+  right: -130px;
+  bottom: -150px;
+  background: var(--blue);
+  animation-delay: -6s;
+}
+
+@keyframes drift {
+  to {
+    transform: translate(35px, 25px) scale(1.12);
+  }
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  width: min(100%, 1000px);
+  min-height: 650px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(24px);
+}
+
+.welcome-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 48px;
+  background:
+    radial-gradient(circle at 15% 85%, rgba(85, 167, 255, 0.2), transparent 38%),
+    linear-gradient(145deg, rgba(125, 61, 153, 0.45), rgba(35, 28, 53, 0.65) 55%, rgba(20, 34, 54, 0.8));
+}
+
+.welcome-panel::after {
+  position: absolute;
+  right: -100px;
+  bottom: 90px;
+  width: 300px;
+  height: 300px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 50%;
+  content: "";
+  box-shadow:
+    0 0 0 35px rgba(255, 255, 255, 0.025),
+    0 0 0 70px rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+.brand {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  color: var(--text);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -1.8px;
+  text-decoration: none;
+}
+
+.brand span {
+  color: #f5a7d1;
+}
+
+.welcome-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 390px;
+  margin: 50px 0;
+}
+
+.eyebrow {
+  margin-bottom: 14px;
+  color: #d8b6f3;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.welcome-copy h1 {
+  min-height: 2.3em;
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1.15;
+  letter-spacing: -0.055em;
+}
+
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  margin-left: 5px;
+  vertical-align: -0.08em;
+  background: #e6b1ff;
+  animation: blink 0.8s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { visibility: hidden; }
+}
+
+.welcome-description {
+  max-width: 340px;
+  margin-top: 20px;
+  color: rgba(245, 245, 248, 0.72);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.panel-note {
+  position: relative;
+  z-index: 1;
+  color: rgba(245, 245, 248, 0.58);
+  font-size: 12px;
+}
+
+.form-panel {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 44px clamp(28px, 5vw, 68px);
+}
+
+.form-stage {
+  position: relative;
+  width: 100%;
+  min-height: 510px;
+}
+
+.auth-form {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 17px;
+  transition: transform 0.55s cubic-bezier(0.2, 0.75, 0.25, 1), opacity 0.35s ease;
+}
+
+.signup-form {
+  transform: translateX(45px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.auth-card.signup-mode .login-form {
+  transform: translateX(-45px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.auth-card.signup-mode .signup-form {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.form-heading {
+  margin-bottom: 9px;
+}
+
+.form-heading .eyebrow {
+  margin-bottom: 9px;
+}
+
+.form-heading h2 {
+  margin-bottom: 9px;
+  font-size: 27px;
+  letter-spacing: -0.04em;
+}
+
+.form-heading > p:last-child {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field label {
+  color: #dedee6;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text);
+  font-size: 13px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.field input::placeholder {
+  color: #777787;
+}
+
+.field input:focus {
+  border-color: rgba(85, 167, 255, 0.8);
+  background: rgba(85, 167, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(85, 167, 255, 0.13);
+}
+
+.field input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.field small {
+  color: #888898;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap input {
+  padding-right: 58px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  padding: 5px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.password-toggle:hover,
+.text-button:hover {
+  color: #cba8ff;
+}
+
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 1px 0 2px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  accent-color: var(--purple);
+}
+
+.text-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #a9bfff;
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.terms-label a {
+  color: #a9bfff;
+  text-decoration: none;
+}
+
+.terms-label a:hover {
+  text-decoration: underline;
+}
+
+.primary-button {
+  min-height: 49px;
+  margin-top: 3px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(100deg, #6879ec, #a54ac0 56%, #df559a);
+  box-shadow: 0 10px 24px rgba(153, 72, 177, 0.2);
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: transform 0.18s, filter 0.18s, box-shadow 0.18s;
+}
+
+.primary-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow: 0 13px 28px rgba(153, 72, 177, 0.3);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+}
+
+.primary-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  transform: none;
+}
+
+.form-message {
+  min-height: 16px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.form-message.error {
+  color: var(--error);
+}
+
+.form-message.success {
+  color: var(--success);
+}
+
+.switch-copy {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.switch-button {
+  margin-left: 3px;
+}
+
+.page-footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+  color: #777787;
+  font-size: 11px;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  body {
+    padding: 22px 14px;
+  }
+
+  .auth-card {
+    grid-template-columns: 1fr;
+    max-width: 490px;
+    min-height: 0;
+  }
+
+  .welcome-panel {
+    min-height: 215px;
+    padding: 24px 28px;
+  }
+
+  .welcome-copy {
+    margin: 32px 0 20px;
+  }
+
+  .welcome-copy h1 {
+    min-height: 1.2em;
+    font-size: 32px;
+  }
+
+  .welcome-description,
+  .panel-note {
+    display: none;
+  }
+
+  .form-panel {
+    padding: 32px 28px;
+  }
+
+  .form-stage {
+    min-height: 490px;
+  }
+
+  .signup-form {
+    justify-content: flex-start;
+    padding-top: 2px;
+  }
+}
+
+@media (max-width: 380px) {
+  .welcome-panel {
+    min-height: 190px;
+  }
+
+  .welcome-copy h1 {
+    font-size: 28px;
+  }
+
+  .form-panel {
+    padding: 26px 20px;
+  }
+
+  .form-heading h2 {
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+### `script.js`
+
+```javascript
+"use strict";
+
+const USERS_KEY = "meetUsersV1";
+const CURRENT_USER_KEY = "meetCurrentUser";
+
+const authCard = document.getElementById("authCard");
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
+const loginMessage = document.getElementById("loginMessage");
+const signupMessage = document.getElementById("signupMessage");
+const typedWelcome = document.getElementById("typedWelcome");
+
+function readUsers() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+}
+
+function showMessage(element, text, type = "") {
+  element.textContent = text;
+  element.className = `form-message ${type}`.trim();
+}
+
+function setSignupMode(showSignup) {
+  authCard.classList.toggle("signup-mode", showSignup);
+  showMessage(loginMessage, "");
+  showMessage(signupMessage, "");
+  typeWelcome(showSignup ? "Your next conversation starts here." : "Good to see you again.");
+
+  const focusTarget = showSignup
+    ? document.getElementById("signupUsername")
+    : document.getElementById("loginIdentifier");
+
+  window.setTimeout(() => focusTarget.focus(), 350);
+}
+
+document.querySelectorAll("[data-show-signup]").forEach((button) => {
+  button.addEventListener("click", () => setSignupMode(true));
+});
+
+document.querySelectorAll("[data-show-login]").forEach((button) => {
+  button.addEventListener("click", () => setSignupMode(false));
+});
+
+document.querySelectorAll("[data-message]").forEach((button) => {
+  button.addEventListener("click", () => {
+    showMessage(loginMessage, button.dataset.message);
+  });
+});
+
+document.querySelectorAll("[data-toggle-password]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const input = document.getElementById(button.dataset.togglePassword);
+    const shouldShow = input.type === "password";
+
+    input.type = shouldShow ? "text" : "password";
+    button.textContent = shouldShow ? "Hide" : "Show";
+    button.setAttribute("aria-label", shouldShow ? "Hide password" : "Show password");
+  });
+});
+
+// Types the welcome message and cancels any typing animation already in progress.
+let typingRun = 0;
+
+function typeWelcome(text) {
+  const run = ++typingRun;
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    typedWelcome.textContent = text;
+    return;
+  }
+
+  const currentText = typedWelcome.textContent;
+  let deleteIndex = currentText.length;
+
+  function deleteText() {
+    if (run !== typingRun) return;
+
+    if (deleteIndex > 0) {
+      deleteIndex -= 1;
+      typedWelcome.textContent = currentText.slice(0, deleteIndex);
+      window.setTimeout(deleteText, 22);
+      return;
+    }
+
+    writeText(0);
+  }
+
+  function writeText(index) {
+    if (run !== typingRun) return;
+
+    typedWelcome.textContent = text.slice(0, index);
+
+    if (index < text.length) {
+      window.setTimeout(() => writeText(index + 1), 42);
+    }
+  }
+
+  deleteText();
+}
+
+// Passwords are derived with PBKDF2 before being stored.
+// Web Crypto requires HTTPS or a secure context (localhost is also supported).
+async function hashPassword(password, salt) {
+  if (!window.crypto?.subtle || !window.crypto?.getRandomValues) {
+    throw new Error("Secure password storage is unavailable. Open this page over HTTPS or localhost.");
+  }
+
+  const encoder = new TextEncoder();
+  const keyMaterial = await window.crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+
+  const derivedBits = await window.crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: 150000,
+      hash: "SHA-256"
+    },
+    keyMaterial,
+    256
+  );
+
+  return Array.from(new Uint8Array(derivedBits), (byte) =>
+    byte.toString(16).padStart(2, "0")
+  ).join("");
+}
+
+function createSalt() {
+  const salt = new Uint8Array(16);
+  window.crypto.getRandomValues(salt);
+  return salt;
+}
+
+function toBase64(bytes) {
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+}
+
+function fromBase64(value) {
+  return Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
+}
+
+function isValidUsername(username) {
+  return /^[a-zA-Z0-9._]{3,24}$/.test(username);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPassword(password) {
+  return password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
+}
+
+function setFormBusy(form, busy) {
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = busy;
+  button.textContent = busy
+    ? (form === signupForm ? "Creating account…" : "Logging in…")
+    : (form === signupForm ? "Create account" : "Log in");
+}
+
+// Signup: validate fields, reject duplicate accounts, and save the new account.
+signupForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  showMessage(signupMessage, "");
+
+  const usernameInput = document.getElementById("signupUsername");
+  const emailInput = document.getElementById("signupEmail");
+  const passwordInput = document.getElementById("signupPassword");
+  const confirmInput = document.getElementById("confirmPassword");
+
+  const username = usernameInput.value.trim().toLowerCase();
+  const email = emailInput.value.trim().toLowerCase();
+  const password = passwordInput.value;
+  const confirmPassword = confirmInput.value;
+  const acceptedTerms = document.getElementById("acceptTerms").checked;
+
+  [usernameInput, emailInput, passwordInput, confirmInput].forEach((input) => {
+    input.removeAttribute("aria-invalid");
+  });
+
+  if (!isValidUsername(username)) {
+    usernameInput.setAttribute("aria-invalid", "true");
+    showMessage(signupMessage, "Choose a username using 3–24 letters, numbers, dots, or underscores.", "error");
+    usernameInput.focus();
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    emailInput.setAttribute("aria-invalid", "true");
+    showMessage(signupMessage, "Enter a valid email address.", "error");
+    emailInput.focus();
+    return;
+  }
+
+  if (!isValidPassword(password)) {
+    passwordInput.setAttribute("aria-invalid", "true");
+    showMessage(signupMessage, "Use at least 8 characters, including at least one letter and one number.", "error");
+    passwordInput.focus();
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    confirmInput.setAttribute("aria-invalid", "true");
+    showMessage(signupMessage, "The passwords do not match.", "error");
+    confirmInput.focus();
+    return;
+  }
+
+  if (!acceptedTerms) {
+    showMessage(signupMessage, "Please agree to the Terms of Service and Privacy Policy.", "error");
+    document.getElementById("acceptTerms").focus();
+    return;
+  }
+
+  const users = readUsers();
+
+  if (users.some((user) => user.username === username)) {
+    usernameInput.setAttribute("aria-invalid", "true");
+    showMessage(signupMessage, "That username is already registered.", "error");
+    usernameInput.focus();
+    return;
+  }
+
+  if (users.some((user) => user.email === email)) {
+    emailInput.setAttribute("aria-invalid", "true");
+    showMessage(signupMessage, "That email address is already registered.", "error");
+    emailInput.focus();
+    return;
+  }
+
+  setFormBusy(signupForm, true);
+
+  try {
+    const salt = createSalt();
+    const passwordHash = await hashPassword(password, salt);
+
+    users.push({
+      username,
+      email,
+      salt: toBase64(salt),
+      passwordHash,
+      createdAt: new Date().toISOString()
+    });
+
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+    signupForm.reset();
+    showMessage(signupMessage, "Account created. You can now log in.", "success");
+
+    window.setTimeout(() => {
+      setSignupMode(false);
+      document.getElementById("loginIdentifier").value = email;
+      showMessage(loginMessage, "Your account is ready. Log in to continue.", "success");
+    }, 800);
+  } catch (error) {
+    showMessage(signupMessage, error.message || "Could not create your account. Please try again.", "error");
+  } finally {
+    setFormBusy(signupForm, false);
+  }
+});
+
+// Login: only users already present in the signup-created account list are accepted.
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  showMessage(loginMessage, "");
+
+  const identifierInput = document.getElementById("loginIdentifier");
+  const passwordInput = document.getElementById("loginPassword");
+  const identifier = identifierInput.value.trim().toLowerCase();
+  const password = passwordInput.value;
+
+  if (!identifier || !password) {
+    showMessage(loginMessage, "Enter your email or username and password.", "error");
+    return;
+  }
+
+  const user = readUsers().find((entry) =>
+    entry.username === identifier || entry.email === identifier
+  );
+
+  if (!user) {
+    showMessage(loginMessage, "No account is registered with those details. Please sign up first.", "error");
+    return;
+  }
+
+  setFormBusy(loginForm, true);
+
+  try {
+    const salt = fromBase64(user.salt);
+    const enteredHash = await hashPassword(password, salt);
+
+    if (enteredHash !== user.passwordHash) {
+      showMessage(loginMessage, "Incorrect password. Please try again.", "error");
+      return;
+    }
+
+    const currentUser = {
+      username: user.username,
+      email: user.email,
+      signedInAt: new Date().toISOString()
+    };
+
+    if (document.getElementById("rememberMe").checked) {
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+    } else {
+      sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+    }
+
+    showMessage(loginMessage, "Login successful. Taking you to Meet…", "success");
+
+    // Change this filename if your home page uses a different name.
+    window.location.assign("home.html");
+  } catch (error) {
+    showMessage(loginMessage, error.message || "Could not log in. Please try again.", "error");
+  } finally {
+    setFormBusy(loginForm, false);
+  }
+});
