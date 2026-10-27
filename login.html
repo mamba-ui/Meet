@@ -1,88 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meet</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurora — Sign in</title>
+<style>
+  :root{
+    --bg:#070b16; --panel:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.14);
+    --text:#eef2ff; --muted:#9aa6c4; --accent:#7c5cff; --accent2:#22d3ee; --ok:#34d399;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--text); background:var(--bg); overflow:hidden;
+  }
+  .aurora{position:fixed; inset:-30%; filter:blur(90px); opacity:.75; z-index:0}
+  .blob{position:absolute; border-radius:50%; mix-blend-mode:screen; animation:float 18s ease-in-out infinite}
+  .b1{width:52vw;height:52vw;left:-8vw;top:-10vw;background:radial-gradient(circle at 30% 30%,#7c5cff,transparent 65%)}
+  .b2{width:45vw;height:45vw;right:-6vw;top:8vw;background:radial-gradient(circle at 60% 40%,#22d3ee,transparent 65%);animation-delay:-6s}
+  .b3{width:40vw;height:40vw;left:25vw;bottom:-15vw;background:radial-gradient(circle at 50% 50%,#f472b6,transparent 65%);animation-delay:-12s}
+  @keyframes float{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    33%{transform:translate3d(4vw,3vh,0) scale(1.08)}
+    66%{transform:translate3d(-3vw,-2vh,0) scale(.95)}
+  }
+  .grid{position:fixed;inset:0;z-index:1;opacity:.18;
+    background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);
+    background-size:56px 56px; mask-image:radial-gradient(circle at 50% 45%,#000 30%,transparent 72%)}
+  .shell{position:relative;z-index:2;min-height:100%;display:grid;place-items:center;padding:24px}
+  .card{
+    width:min(430px,100%); padding:34px 30px 28px; border-radius:26px;
+    background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));
+    border:1px solid var(--stroke); backdrop-filter:blur(22px) saturate(140%);
+    box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.18);
+    animation:rise .7s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
+  .logo{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+  .mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;
+    background:conic-gradient(from 210deg,var(--accent),var(--accent2),#f472b6,var(--accent));
+    box-shadow:0 8px 24px rgba(124,92,255,.45)}
+  .mark span{font-weight:800;font-size:19px;color:#fff}
+  h1{margin:0;font-size:26px;letter-spacing:-.02em}
+  p.sub{margin:6px 0 24px;color:var(--muted);font-size:14px}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:0 0 7px 2px}
+  .field{position:relative;margin-bottom:16px}
+  input{
+    width:100%;height:52px;border-radius:15px;color:var(--text);font-size:15px;
+    background:rgba(255,255,255,.05);border:1px solid var(--stroke);outline:none;
+    padding:0 46px 0 16px;transition:border-color .2s,box-shadow .2s,background .2s;
+  }
+  input::placeholder{color:#7e8aa8}
+  input:focus{border-color:rgba(124,92,255,.75);box-shadow:0 0 0 4px rgba(124,92,255,.18);background:rgba(255,255,255,.08)}
+  .eye{position:absolute;right:8px;top:8px;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:var(--muted);cursor:pointer}
+  .eye:hover{color:#fff;background:rgba(255,255,255,.08)}
+  .row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin:2px 2px 20px}
+  .row a{color:#b9c4ff;text-decoration:none}
+  .row a:hover{text-decoration:underline}
+  .check{display:flex;gap:8px;align-items:center;color:var(--muted)}
+  .check input{appearance:none;width:17px;height:17px;border-radius:5px;border:1px solid var(--stroke);background:rgba(255,255,255,.06);cursor:pointer;position:relative}
+  .check input:checked{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent}
+  .check input:checked::after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  button.cta{
+    width:100%;height:54px;border:0;border-radius:16px;color:white;font-weight:700;font-size:15px;cursor:pointer;
+    background:linear-gradient(135deg,var(--accent),#5b8cff 45%,var(--accent2));
+    box-shadow:0 14px 34px rgba(91,140,255,.35);transition:transform .15s,box-shadow .2s,filter .2s;
+  }
+  button.cta:hover{transform:translateY(-2px);filter:brightness(1.07)}
+  button.cta:active{transform:translateY(0)}
+  .divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:22px 0 16px}
+  .divider::before,.divider::after{content:"";height:1px;flex:1;background:var(--stroke)}
+  .social{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .social button{
+    height:48px;border-radius:14px;border:1px solid var(--stroke);background:rgba(255,255,255,.05);
+    color:var(--text);font-weight:600;font-size:14px;cursor:pointer;transition:.2s
+  }
+  .social button:hover{background:rgba(255,255,255,.11);transform:translateY(-1px)}
+  .foot{margin-top:22px;text-align:center;color:var(--muted);font-size:13px}
+  .foot a{color:#b9c4ff;text-decoration:none;font-weight:600}
+  .error{color:#fca5a5;font-size:12.5px;margin:-8px 2px 14px;display:none}
+  .success{position:fixed;inset:auto 20px 20px auto;z-index:5;display:none;align-items:center;gap:10px;
+    padding:14px 18px;border-radius:16px;background:rgba(16,185,129,.14);border:1px solid rgba(52,211,153,.45);color:#d1fae5}
+  @media (max-width:420px){.card{padding:26px 20px}}
+</style>
 </head>
 <body>
+  <div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <div class="grid"></div>
 
-  <!-- Members-only area: filled in by script.js only after a successful login -->
-  <div id="app" hidden></div>
-
-  <!-- Login / sign up -->
-  <main class="shell" id="gate">
-    <aside class="brand">
-      <div class="logo">Meet</div>
-      <h2>Talk face to face, from anywhere.</h2>
-      <p>Sign in to start or join a meeting.</p>
-      <div class="tiles" aria-hidden="true">
-        <span class="tile t1"><i>A</i></span>
-        <span class="tile t2"><i>J</i></span>
-        <span class="tile t3"><i>M</i></span>
-        <span class="tile t4"><i>S</i></span>
+  <main class="shell">
+    <form class="card" id="form" novalidate>
+      <div class="logo">
+        <div class="mark"><span>A</span></div>
+        <div><h1>Welcome back</h1><p class="sub">Sign in to continue to Aurora</p></div>
       </div>
-    </aside>
 
-    <section class="auth">
-      <div class="track" id="track">
-
-        <form class="panel" id="loginForm" novalidate>
-          <h1>Log in</h1>
-          <p class="sub">Only registered members can enter.</p>
-
-          <label for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" autocomplete="email" required>
-
-          <label for="loginPassword">Password</label>
-          <div class="pw">
-            <input type="password" id="loginPassword" autocomplete="current-password" required>
-            <button type="button" class="eye" data-toggle="loginPassword" aria-label="Show password">Show</button>
-          </div>
-
-          <p class="msg" id="loginMsg" role="alert" aria-live="polite"></p>
-          <button type="submit" class="btn">Log in</button>
-
-          <p class="switch">New here?
-            <button type="button" class="link" data-show="signup">Create an account</button>
-          </p>
-        </form>
-
-        <form class="panel" id="signupForm" novalidate inert>
-          <h1>Create account</h1>
-          <p class="sub">Sign up once, then log in anytime.</p>
-
-          <label for="signupName">Name</label>
-          <input type="text" id="signupName" autocomplete="name" required>
-
-          <label for="signupEmail">Email</label>
-          <input type="email" id="signupEmail" autocomplete="email" required>
-
-          <label for="signupPassword">Password <small>(8+ characters)</small></label>
-          <div class="pw">
-            <input type="password" id="signupPassword" autocomplete="new-password" required>
-            <button type="button" class="eye" data-toggle="signupPassword" aria-label="Show password">Show</button>
-          </div>
-
-          <label for="signupConfirm">Confirm password</label>
-          <input type="password" id="signupConfirm" autocomplete="new-password" required>
-
-          <p class="msg" id="signupMsg" role="alert" aria-live="polite"></p>
-          <button type="submit" class="btn">Create account</button>
-
-          <p class="switch">Already a member?
-            <button type="button" class="link" data-show="login">Log in</button>
-          </p>
-        </form>
-
+      <label for="email">Email address</label>
+      <div class="field">
+        <input id="email" type="email" placeholder="you@company.com" autocomplete="email" required>
       </div>
-    </section>
+      <div class="error" id="emailError">Please enter a valid email address.</div>
+
+      <label for="password">Password</label>
+      <div class="field">
+        <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password" required minlength="8">
+        <button class="eye" type="button" id="toggle" aria-label="Show password">👁</button>
+      </div>
+      <div class="error" id="passwordError">Password must be at least 8 characters.</div>
+
+      <div class="row">
+        <label class="check"><input type="checkbox" id="remember"> Remember me</label>
+        <a href="#">Forgot password?</a>
+      </div>
+
+      <button class="cta" type="submit">Sign in</button>
+
+      <div class="divider">or continue with</div>
+      <div class="social">
+        <button type="button">Google</button>
+        <button type="button">Apple</button>
+      </div>
+
+      <div class="foot">New to Aurora? <a href="#">Create an account</a></div>
+    </form>
   </main>
 
-  <script src="script.js"></script>
+  <div class="success" id="success">✓ Signed in successfully</div>
+
+<script>
+  const form=document.getElementById('form'), email=document.getElementById('email'),
+        pass=document.getElementById('password'), toggle=document.getElementById('toggle'),
+        success=document.getElementById('success');
+  toggle.addEventListener('click',()=>{
+    const show=pass.type==='password';
+    pass.type=show?'text':'password';
+    toggle.textContent=show?'🙈':'👁';
+  });
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
+    const passOk=pass.value.length>=8;
+    document.getElementById('emailError').style.display=emailOk?'none':'block';
+    document.getElementById('passwordError').style.display=passOk?'none':'block';
+    if(emailOk&&passOk){
+      success.style.display='flex';
+      setTimeout(()=>success.style.display='none',2600);
+    }
+  });
+</script>
 </body>
 </html>
