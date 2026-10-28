@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meet · Log in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060914;
+    --cyan: #5ee7ff;
+    --violet: #8b5cf6;
+    --pink: #ff5fd2;
+    --text: #e9eefc;
+    --muted: #8f9bbd;
+    --glass: rgba(14, 20, 44, .55);
+    --line: rgba(130, 150, 255, .22);
+    --left-w: 480px;
+    --right-w: 430px;
+    --ease: cubic-bezier(.77, 0, .18, 1);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    color: var(--text);
+    background: radial-gradient(ellipse at 20% 10%, #141a4a 0, transparent 55%),
+                radial-gradient(ellipse at 90% 90%, #3a0f4d 0, transparent 50%), var(--bg);
+    display: grid; place-items: center; padding: 24px; overflow-x: hidden;
+  }
+  #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+
+  .card {
+    position: relative; z-index: 1;
+    display: flex;
+    width: calc(var(--left-w) + var(--right-w)); max-width: 100%;
+    min-height: 560px;
+    border-radius: 24px; overflow: hidden;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.03) inset, 0 0 60px rgba(94,231,255,.12), 0 0 120px rgba(139,92,246,.16), 0 30px 80px rgba(0,0,0,.5);
+    transition: width .9s var(--ease);
+  }
+
+  /* ---------- Left: typing welcome ---------- */
+  .welcome {
+    position: relative; overflow: hidden;
+    flex: 0 0 var(--left-w); width: var(--left-w);
+    padding: 48px 44px;
+    display: flex;
+    background: linear-gradient(160deg, rgba(139,92,246,.20), rgba(94,231,255,.05) 60%, transparent);
+    border-right: 1px solid var(--line);
+    transition: flex-basis .9s var(--ease), width .9s var(--ease), padding .9s var(--ease), opacity .5s ease;
+  }
+  .welcome-inner {
+    width: calc(var(--left-w) - 88px); flex: 1;
+    display: flex; flex-direction: column; justify-content: space-between;
+    transition: transform .9s var(--ease), opacity .5s ease;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-family: "Sora", sans-serif; font-weight: 700; font-size: 1.15rem; }
+  .logo {
+    width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--cyan), var(--violet));
+    box-shadow: 0 0 22px rgba(94,231,255,.55);
+  }
+  .logo svg { width: 20px; height: 20px; }
+
+  .typing { min-height: 11.5rem; }
+  .typing h1 {
+    font-family: "Sora", sans-serif; font-weight: 700;
+    font-size: clamp(2rem, 4vw, 2.9rem); line-height: 1.12;
+    background: linear-gradient(90deg, #fff, var(--cyan) 60%, var(--pink));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 14px rgba(94,231,255,.35));
+    display: inline;
+  }
+  .caret {
+    display: inline-block; width: 3px; height: 1.05em; margin-left: 4px; vertical-align: -0.12em;
+    background: var(--cyan); box-shadow: 0 0 12px var(--cyan), 0 0 24px var(--cyan);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .typing-sub { margin-top: 18px; color: var(--muted); line-height: 1.6; max-width: 34ch; min-height: 3.2em; }
+
+  .live { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .88rem; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #4dffa6; box-shadow: 0 0 12px #4dffa6; animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(1.5); opacity: .55; } }
+
+  /* ---------- Right: form ---------- */
+  .panel { position: relative; flex: 0 0 var(--right-w); width: var(--right-w); padding: 48px 42px; display: grid; }
+  .view { grid-area: 1 / 1; display: flex; flex-direction: column; justify-content: center; transition: opacity .45s ease, transform .6s var(--ease); }
+  .view.hidden { opacity: 0; transform: translateX(24px); pointer-events: none; visibility: hidden; transition: opacity .3s ease, transform .6s var(--ease), visibility 0s .6s; }
+
+  h2 { font-family: "Sora", sans-serif; font-size: 1.7rem; margin-bottom: 6px; }
+  .sub { color: var(--muted); margin-bottom: 26px; }
+  label { display: block; font-size: .83rem; font-weight: 600; margin-bottom: 7px; color: #c8d1ee; }
+  .field { margin-bottom: 18px; }
+  .input-wrap { position: relative; }
+  input[type="text"], input[type="password"] {
+    width: 100%; font: inherit; color: var(--text);
+    padding: 13px 14px; border-radius: 12px;
+    background: rgba(8, 12, 30, .65); border: 1.5px solid var(--line);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input::placeholder { color: #55618a; }
+  input:focus-visible { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(94,231,255,.14), 0 0 20px rgba(94,231,255,.25); }
+  .field.bad input { border-color: #ff6b7d; }
+  .error { color: #ff8fa0; font-size: .8rem; margin-top: 6px; min-height: 1em; }
+  .toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: none; font: inherit; font-size: .8rem; font-weight: 600; color: var(--cyan); padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+  .row { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 24px; font-size: .86rem; }
+  .row label { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 500; color: var(--muted); cursor: pointer; }
+  .row input { accent-color: var(--violet); width: 16px; height: 16px; }
+  a { color: var(--cyan); font-weight: 600; text-decoration: none; }
+  a:hover { text-shadow: 0 0 10px var(--cyan); }
+
+  .btn {
+    width: 100%; font: inherit; font-weight: 700; padding: 14px; border: 0; border-radius: 12px; cursor: pointer;
+    color: #061022; background: linear-gradient(90deg, var(--cyan), var(--violet));
+    box-shadow: 0 0 24px rgba(94,231,255,.35), 0 8px 24px rgba(139,92,246,.35);
+    transition: transform .15s, box-shadow .2s, filter .2s;
+  }
+  .btn:hover { filter: brightness(1.1); box-shadow: 0 0 34px rgba(94,231,255,.55), 0 8px 28px rgba(139,92,246,.5); }
+  .btn:active { transform: scale(.98); }
+  .btn.ghost { background: transparent; color: var(--text); border: 1.5px solid var(--line); box-shadow: none; margin-top: 10px; }
+  .btn:focus-visible, .toggle:focus-visible, a:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+  .signup { text-align: center; margin-top: 22px; font-size: .9rem; color: var(--muted); }
+
+
+  /* Instagram-style floating fields */
+  .field.float { margin-bottom: 12px; }
+  .field.float input { padding: 22px 14px 8px; font-size: .95rem; }
+  .field.float label {
+    position: absolute; left: 15px; top: 16px; margin: 0; pointer-events: none;
+    font-size: .92rem; font-weight: 400; color: #6f7ca3; transition: all .15s ease;
+  }
+  .field.float .input-wrap { position: relative; }
+  .field.float input:not(:placeholder-shown) ~ label,
+  .field.float input:focus ~ label { top: 7px; font-size: .68rem; color: var(--cyan); }
+  .field.float:not(:has(.input-wrap)) { position: relative; }
+  .field.float input:not(:placeholder-shown) ~ label { color: #8f9bbd; }
+  .field.float input#pass { padding-right: 64px; }
+  .btn:disabled { opacity: .4; cursor: default; filter: none; box-shadow: none; }
+  .btn:disabled:active { transform: none; }
+  #loginBtn { margin-top: 10px; }
+  .or { display: flex; align-items: center; gap: 14px; margin: 20px 0; color: var(--muted); font-size: .78rem; font-weight: 600; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .btn.fb { display: flex; align-items: center; justify-content: center; gap: 10px; background: transparent; color: #7db2ff; border: 1.5px solid var(--line); box-shadow: none; }
+  .btn.fb:hover { background: rgba(125,178,255,.08); box-shadow: 0 0 22px rgba(125,178,255,.25); filter: none; }
+  .btn.fb svg { width: 20px; height: 20px; }
+  .forgot { text-align: center; margin-top: 18px; font-size: .86rem; }
+  .signup { margin-top: 16px; }
+
+  /* ---------- Merged single box ---------- */
+  .check { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 18px; background: linear-gradient(135deg, var(--cyan), var(--violet)); box-shadow: 0 0 30px rgba(94,231,255,.6); }
+  .check svg { width: 26px; height: 26px; }
+  .summary { list-style: none; padding: 0; margin: 4px 0 22px; border: 1.5px solid var(--line); border-radius: 12px; background: rgba(8,12,30,.55); }
+  .summary li { display: flex; justify-content: space-between; gap: 16px; padding: 13px 16px; font-size: .93rem; }
+  .summary li + li { border-top: 1.5px solid var(--line); }
+  .summary span:first-child { color: var(--muted); }
+  .summary span:last-child { font-weight: 600; word-break: break-all; text-align: right; }
+
+  .card.merged { width: var(--right-w); }
+  .card.merged .welcome { flex-basis: 0; width: 0; padding-left: 0; padding-right: 0; opacity: 0; border-right-width: 0; }
+  .card.merged .welcome-inner { transform: translateX(-60px); opacity: 0; }
+
+  @media (max-width: 860px) {
+    :root { --left-w: 100%; --right-w: 100%; }
+    .card { flex-direction: column; max-width: 480px; width: 100%; }
+    .welcome, .panel { flex: none; width: 100%; }
+    .welcome { padding: 30px 26px; max-height: 380px; border-right: 0; border-bottom: 1px solid var(--line); transition: max-height .9s var(--ease), padding .9s var(--ease), opacity .5s ease; }
+    .welcome-inner { width: 100%; gap: 22px; }
+    .typing { min-height: 9.5rem; }
+    .panel { padding: 30px 26px; }
+    .card.merged { width: 100%; max-width: 480px; }
+    .card.merged .welcome { max-height: 0; padding-top: 0; padding-bottom: 0; border-bottom-width: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <main class="card" id="card">
+    <section class="welcome" aria-label="Welcome">
+      <div class="welcome-inner">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="#061022"><rect x="2" y="6" width="13" height="12" rx="3"/><path d="M16.5 10.5 22 7v10l-5.5-3.5z"/></svg>
+          </span>
+          Meet
+        </div>
+        <div class="typing">
+          <h1 id="typed"></h1><span class="caret" aria-hidden="true"></span>
+          <p class="typing-sub" id="typedSub"></p>
+        </div>
+        <div class="live"><span class="dot"></span> Rooms are open right now</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <form class="view" id="loginView" novalidate>
+        <h2>Log in</h2>
+        <p class="sub">Use your phone number, username or email.</p>
+
+        <div class="field float">
+          <input type="text" id="user" autocomplete="username" placeholder=" " aria-label="Phone number, username, or email">
+          <label for="user">Phone number, username, or email</label>
+        </div>
+
+        <div class="field float">
+          <div class="input-wrap">
+            <input type="password" id="pass" autocomplete="current-password" placeholder=" " aria-label="Password">
+            <label for="pass">Password</label>
+            <button type="button" class="toggle" id="toggle" aria-label="Show password">Show</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="loginBtn" disabled>Log in</button>
+
+        <div class="or"><span>OR</span></div>
+
+        <button type="button" class="btn fb" id="fbBtn">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H7.9v3h2.6V21z"/></svg>
+          Log in with Facebook
+        </button>
+
+        <p class="forgot"><a href="#">Forgot password?</a></p>
+        <p class="signup">Don't have an account? <a href="#">Sign up</a></p>
+      </form>
+
+      <div class="view hidden" id="doneView" aria-live="polite">
+        <div class="check" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#061022" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        <h2>You're in</h2>
+        <p class="sub">Logged in with these details.</p>
+        <ul class="summary">
+          <li><span id="outType">Account</span><span id="outUser"></span></li>
+          <li><span>Password</span><span id="outPass"></span></li>
+        </ul>
+        <button class="btn" type="button">Start a meeting</button>
+        <button class="btn ghost" type="button" id="back">Back to log in</button>
+      </div>
+    </section>
+  </main>
+
+<script>
+/* ---------- Typing effect ---------- */
+const lines = [
+  ["Welcome to Meet.", "Your people are one click away."],
+  ["Talk face to face, from anywhere.", "Crisp video, clear sound, zero setup."],
+  ["Your team is waiting inside.", "Log in and join the room."]
+];
+const typed = document.getElementById('typed');
+const typedSub = document.getElementById('typedSub');
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+async function typeInto(el, text, speed) {
+  for (const ch of text) { el.textContent += ch; await wait(speed + Math.random() * 35); }
+}
+async function erase(el, speed) {
+  while (el.textContent.length) { el.textContent = el.textContent.slice(0, -1); await wait(speed); }
+}
+async function loop() {
+  if (reduce) { typed.textContent = lines[0][0]; typedSub.textContent = lines[0][1]; return; }
+  let i = 0;
+  while (true) {
+    const [title, sub] = lines[i % lines.length];
+    await typeInto(typed, title, 55);
+    await wait(250);
+    await typeInto(typedSub, sub, 22);
+    await wait(2400);
+    await Promise.all([erase(typedSub, 8), erase(typed, 22)]);
+    await wait(350);
+    i++;
+  }
+}
+loop();
+
+/* ---------- Glowing particles ---------- */
+const cv = document.getElementById('fx');
+const ctx = cv.getContext('2d');
+let W, H, dpr, parts = [];
+const mouse = { x: -999, y: -999 };
+const colors = ['94,231,255', '139,92,246', '255,95,210'];
+
+function resize() {
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
+  const n = Math.min(120, Math.floor(innerWidth * innerHeight / 14000));
+  parts = Array.from({ length: n }, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    vx: (Math.random() - .5) * .35 * dpr, vy: (Math.random() - .5) * .35 * dpr,
+    r: (Math.random() * 1.8 + .8) * dpr,
+    c: colors[Math.floor(Math.random() * colors.length)],
+    ph: Math.random() * 6.28
+  }));
+}
+addEventListener('resize', resize);
+addEventListener('pointermove', e => { mouse.x = e.clientX * dpr; mouse.y = e.clientY * dpr; });
+addEventListener('pointerleave', () => { mouse.x = mouse.y = -999; });
+
+function frame(t) {
+  ctx.clearRect(0, 0, W, H);
+  const link = 130 * dpr;
+  for (const p of parts) {
+    const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+    if (d < 160 * dpr) { p.vx += dx / d * .04; p.vy += dy / d * .04; }
+    p.vx *= .995; p.vy *= .995;
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+  }
+  ctx.lineWidth = dpr;
+  for (let i = 0; i < parts.length; i++) {
+    for (let j = i + 1; j < parts.length; j++) {
+      const a = parts[i], b = parts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < link) {
+        ctx.strokeStyle = `rgba(${a.c},${(1 - d / link) * .28})`;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+    }
+  }
+  for (const p of parts) {
+    const tw = .65 + .35 * Math.sin(t / 700 + p.ph);
+    ctx.shadowBlur = 18 * dpr; ctx.shadowColor = `rgb(${p.c})`;
+    ctx.fillStyle = `rgba(${p.c},${tw})`;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+  if (!reduce) requestAnimationFrame(frame);
+}
+resize();
+requestAnimationFrame(frame);
+
+/* ---------- Login logic ---------- */
+const card = document.getElementById('card');
+const form = document.getElementById('loginView');
+const done = document.getElementById('doneView');
+const user = document.getElementById('user');
+const pass = document.getElementById('pass');
+
+document.getElementById('toggle').addEventListener('click', e => {
+  const show = pass.type === 'password';
+  pass.type = show ? 'text' : 'password';
+  e.target.textContent = show ? 'Hide' : 'Show';
+  e.target.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+});
+const loginBtn = document.getElementById('loginBtn');
+function valid() { return user.value.trim().length > 0 && pass.value.length >= 6; }
+function sync() { loginBtn.disabled = !valid(); }
+user.addEventListener('input', sync);
+pass.addEventListener('input', sync);
+
+function kind(u) {
+  if (u.includes('@')) return 'Email';
+  if (/^\+?[\d\s()-]{6,}$/.test(u)) return 'Phone number';
+  return 'Username';
+}
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!valid()) return;
+  const u = user.value.trim();
+  document.getElementById('outType').textContent = kind(u);
+  document.getElementById('outUser').textContent = u;
+  document.getElementById('outPass').textContent = '•'.repeat(Math.min(pass.value.length, 12));
+
+  form.classList.add('hidden');
+  done.classList.remove('hidden');
+  card.classList.add('merged');
+});
+document.getElementById('back').addEventListener('click', () => {
+  card.classList.remove('merged');
+  done.classList.add('hidden');
+  form.classList.remove('hidden');
+  pass.value = '';
+  sync();
+});
+</script>
+</body>
+</html>
