@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-public>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meet — Log in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script src="auth-guard.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#3897f0;--purple:#8134af;--pink:#dd2a7b;--orange:#f58529;--yellow:#feda77;--bg:#08080d;--panel:rgba(18,18,24,.72);--border:rgba(255,255,255,.10);--text:#f5f5f7;--muted:#a8a8b3}
+body{font-family:"Inter",system-ui,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px;color:var(--text);background:radial-gradient(900px 600px at 10% 10%,rgba(221,42,123,.28),transparent 60%),radial-gradient(800px 600px at 90% 15%,rgba(129,52,175,.3),transparent 60%),radial-gradient(900px 700px at 50% 100%,rgba(56,151,240,.25),transparent 65%),var(--bg)}
+.wrap{width:min(400px,100%);text-align:center}
+.logo{font-size:52px;font-weight:800;letter-spacing:-.04em;background:linear-gradient(90deg,var(--yellow),var(--orange),var(--pink),var(--purple),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{color:var(--muted);margin:6px 0 24px}
+form{display:grid;gap:12px;padding:26px;border-radius:24px;background:var(--panel);border:1px solid var(--border);backdrop-filter:blur(24px);box-shadow:0 0 70px rgba(129,52,175,.3);text-align:left}
+h1{font-size:20px}
+input{height:46px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);padding:0 16px;outline:none;font:14px Inter,sans-serif}
+input:focus{border-color:rgba(56,151,240,.7);box-shadow:0 0 0 4px rgba(56,151,240,.14)}
+.btn{height:46px;border:0;border-radius:14px;color:#fff;font:700 14px Inter,sans-serif;cursor:pointer;background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink),var(--orange));box-shadow:0 10px 26px rgba(221,42,123,.25)}
+.btn:disabled{opacity:.6;cursor:wait}
+.link{background:none;border:0;color:var(--blue);cursor:pointer;font:600 13px Inter,sans-serif}
+#msg{min-height:20px;font-size:13px;color:#ff8fb3}#msg.ok{color:#5be09a}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Meet</div>
+  <p class="tag">Find people. Join rooms. Chat live.</p>
+  <form id="f">
+    <h1 id="title">Log in</h1>
+    <input id="u" type="text" placeholder="Choose a username" maxlength="24" autocomplete="username" />
+    <input id="e" type="email" placeholder="Email" required autocomplete="email" />
+    <input id="p" type="password" placeholder="Password (min 6 characters)" minlength="6" required autocomplete="current-password" />
+    <div id="msg" role="status"></div>
+    <button class="btn" id="go" type="submit">Log in</button>
+    <button class="link" id="sw" type="button">New here? Create an account</button>
+  </form>
+</div>
+<script>
+const $=s=>document.querySelector(s);let signup=false;
+const nx=new URLSearchParams(location.search).get('next'),next=/^[\w-]+\.html$/.test(nx||'')?nx:'index.html';
+function mode(){
+  $('#u').style.display=signup?'':'none';$('#u').required=signup;
+  $('#title').textContent=signup?'Create your account':'Log in';
+  $('#go').textContent=signup?'Create account':'Log in';
+  $('#sw').textContent=signup?'Have an account? Log in':'New here? Create an account';
+  $('#p').autocomplete=signup?'new-password':'current-password';$('#msg').textContent='';
+}
+$('#sw').onclick=()=>{signup=!signup;mode()};mode();
+$('#f').onsubmit=async e=>{
+  e.preventDefault();const m=$('#msg'),b=$('#go');
+  if(!window.meetSb){m.textContent='Setup needed: add your Supabase keys in auth-guard.js.';return}
+  b.disabled=true;m.className='';m.textContent='One moment…';
+  const em=$('#e').value.trim(),pw=$('#p').value;
+  const r=signup?await meetSb.auth.signUp({email:em,password:pw,options:{data:{username:$('#u').value.trim()}}}):await meetSb.auth.signInWithPassword({email:em,password:pw});
+  b.disabled=false;
+  if(r.error){m.textContent=/invalid login/i.test(r.error.message)?'Wrong email or password.':r.error.message;return}
+  if(signup&&!r.data.session){m.className='ok';m.textContent='Account created. Check your email to confirm, then log in.';return}
+  location.replace(next);
+};
+</script>
+</body>
+</html>
