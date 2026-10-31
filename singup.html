@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meet — Sign up</title>
+</head>
+<body>
+  <h1>Create your Meet account</h1>
+
+  <form id="signup-form">
+    <input id="email" type="email" placeholder="Email" required />
+    <input id="password" type="password" placeholder="Password" required />
+    <button type="submit">Sign up</button>
+  </form>
+
+  <p id="message"></p>
+
+  <p>
+    Already have an account?
+    <a href="login.html">Log in</a>
+  </p>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabase = createClient(
+      "PASTE_YOUR_SUPABASE_URL_HERE",
+      "PASTE_YOUR_SUPABASE_ANON_KEY_HERE"
+    );
+
+    document.getElementById("signup-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const message = document.getElementById("message");
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) {
+        message.textContent = "Sign-up failed: " + error.message;
+        console.error(error);
+        return;
+      }
+
+      message.textContent = "Account created! Check your email to confirm it.";
+      console.log("Signup result:", data);
+    });
+  </script>
+</body>
+</html>
