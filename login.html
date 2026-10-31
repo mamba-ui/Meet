@@ -100,6 +100,47 @@ $('#f').onsubmit=async e=>{
 
     message.textContent = "Account created! Check your email to confirm it.";
     console.log("Signup successful:", data);
+    <h2>Create an account</h2>
+
+<form id="signup-form">
+  <input id="signup-email" type="email" placeholder="Email" required />
+  <input id="signup-password" type="password" placeholder="Password" required />
+  <button type="submit">Sign up</button>
+</form>
+
+<p id="signup-message"></p>
+  });
+</script>
+  <script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const supabase = createClient(
+    "https://dzzqtyghwbqvgyovxvbp.supabase.co",
+    "sb_publishable_uNBvZlmwspJDeb236nBTqw_TZ17iBlI"
+  );
+
+  document.getElementById("signup-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value;
+    const message = document.getElementById("signup-message");
+
+    message.textContent = "Creating account...";
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) {
+      message.textContent = "Sign-up failed: " + error.message;
+      console.error(error);
+      return;
+    }
+
+    message.textContent = "Account created! Check your email to confirm it.";
+    console.log("Signup successful:", data);
   });
 </script>
 </body>
