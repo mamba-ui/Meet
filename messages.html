@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Meet — Messages</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script src="auth-guard.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -99,10 +101,31 @@ button:focus-visible,.conv:focus-visible{outline:2px solid var(--blue);outline-o
 .emo.on{display:grid}
 .emo button{background:none;border:0;font-size:22px;cursor:pointer;border-radius:10px;padding:5px;transition:.15s}.emo button:hover{background:rgba(255,255,255,.1);transform:scale(1.25)}
 @media(prefers-reduced-motion:reduce){.ring,.ring .pa,.chat{animation:none}}
+
+.gate{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(8,8,13,.55);backdrop-filter:blur(10px);padding:16px}
+.gate[hidden]{display:none}
+.gcard{width:min(380px,100%);display:grid;gap:12px;padding:28px;border-radius:24px;background:var(--panel);border:1px solid var(--border);backdrop-filter:blur(24px);box-shadow:0 0 70px rgba(129,52,175,.35)}
+.gcard .logo{font-size:32px;text-align:center}.gcard p{color:var(--muted);font-size:14px;text-align:center;min-height:20px}
+.gcard input{height:46px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);padding:0 16px;outline:none;font:14px Inter,sans-serif}
+.gcard input:focus{border-color:rgba(56,151,240,.7);box-shadow:0 0 0 4px rgba(56,151,240,.14)}
+.gbtn{height:46px;border:0;border-radius:14px;color:#fff;font:700 14px Inter,sans-serif;cursor:pointer;background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink),var(--orange));box-shadow:0 10px 26px rgba(221,42,123,.25)}
+.gbtn:disabled{opacity:.5;cursor:not-allowed}
+.glink{background:none;border:0;color:var(--blue);cursor:pointer;font:600 13px Inter,sans-serif}
 </style>
 </head>
 <body>
 <canvas id="particles"></canvas>
+<div class="gate" id="gate">
+  <form class="gcard" id="auth">
+    <div class="logo">Meet</div>
+    <p id="amsg">Log in to chat with real people.</p>
+    <input id="au" type="text" placeholder="Choose a username" maxlength="24" autocomplete="username" />
+    <input id="ae" type="email" placeholder="Email" required autocomplete="email" />
+    <input id="ap" type="password" placeholder="Password (min 6 characters)" minlength="6" required autocomplete="current-password" />
+    <button class="gbtn" type="submit" id="abtn">Log in</button>
+    <button class="glink" type="button" id="aswitch">New here? Create an account</button>
+  </form>
+</div>
 <div class="app">
 <header>
   <div class="logo">Meet</div>
@@ -111,13 +134,13 @@ button:focus-visible,.conv:focus-visible{outline:2px solid var(--blue);outline-o
     <button class="icon-btn" title="Notifications">🔔</button>
     <a class="icon-btn" href="friends.html" title="Friends">👥</a>
     <a class="icon-btn" href="messages.html" title="Messages">💬</a>
-    <div class="avatar" title="Your profile">Y</div>
+    <div class="avatar" id="me" title="Click to log out" style="cursor:pointer">Y</div>
   </div>
 </header>
 <div class="layout" id="layout">
   <aside class="panel sidebar">
     <nav class="nav">
-      <a href="home.html">🏠 Home</a>
+      <a href="index.html">🏠 Home</a>
       <a href="#">🔍 Discover</a>
       <a href="messages.html" class="active">💬 Messages</a>
       <a href="friends.html">👥 Friends</a>
@@ -153,7 +176,7 @@ button:focus-visible,.conv:focus-visible{outline:2px solid var(--blue);outline-o
 </div>
 </div>
 <nav class="bottom-nav">
-  <a href="home.html">🏠</a><a href="#">🔍</a><a href="messages.html" class="active">💬</a><a href="games.html">🎮</a>
+  <a href="index.html">🏠</a><a href="#">🔍</a><a href="messages.html" class="active">💬</a><a href="games.html">🎮</a>
 </nav>
 
 <script>
@@ -201,36 +224,59 @@ function animate(){
 }
 addEventListener("resize",resize);resize();animate();
 
-/* chat */
+/* Supabase values now live in auth-guard.js */
+const SUPABASE_URL=window.MEET_CONFIG.url;
+const SUPABASE_KEY=window.MEET_CONFIG.key;
+/* =============================================== */
 const $=s=>document.querySelector(s);
-const C=[
- {n:'Mia Chen',i:'M',k:'a',on:1,u:2,m:[['in','Hey! 👋 Are you joining the music room tonight?','18:02'],['out','Maybe! What time does it start?','18:05'],['in','Around 9. Bring your playlist 🎧','18:06']],r:['Haha nice, see you there!','Yes! I love that song 😍','Send me the link when you join','Perfect, it will be fun!']},
- {n:'Jordan Lee',i:'J',k:'b',on:1,u:0,m:[['in','Sent a game invite 🎮','17:40'],['out','Just saw it, give me 5 minutes','17:48']],r:['Cool, I will wait for you','Try the Snake game, my best is 22 🐍','Ready when you are 😎','Let’s play Tic-tac-toe next']},
- {n:'Sara Kim',i:'S',k:'c',on:0,u:1,m:[['in','That travel photo was amazing! 📸','Yesterday'],['out','Thanks! It was taken in Kigali 🇷🇼','Yesterday'],['in','I need to visit one day!','Yesterday']],r:['Tell me more about the trip','Wow, that sounds beautiful','Let’s plan something together ✈️','I will check it out soon']},
- {n:'David Patel',i:'D',k:'d',on:1,u:0,m:[['in','Did you hear the new album?','Mon'],['out','Not yet, is it good?','Mon']],r:['Really good, track 4 is my favourite','You should listen tonight 🎶','We can talk about it in the room','Haha agreed']}
-];
-let cur=0;
-const esc=(t,e)=>{e.textContent=t;return e};
-const now=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const configured=!SUPABASE_URL.startsWith('PASTE')&&!SUPABASE_KEY.startsWith('PASTE');
+let sb,me=null,people=[],convs={},online=new Set(),cur=null,seen=new Set(),pc=null;
+const kof=n=>'abcd'[[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%4];
+const person=id=>people.find(p=>p.id===id);
+const fmt=t=>{const d=new Date(t),n=new Date();return d.toDateString()===n.toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'})};
+const lr=id=>{try{return new Date(localStorage.getItem('meet-read-'+id)||0)}catch(e){return new Date(0)}};
+const markRead=id=>{try{localStorage.setItem('meet-read-'+id,new Date().toISOString())}catch(e){}};
+const unread=id=>(convs[id]||[]).filter(r=>r.sender===id&&new Date(r.created_at)>lr(id)).length;
+const add=r=>{const o=r.sender===me.id?r.receiver:r.sender;(convs[o]=convs[o]||[]).push(r);seen.add(r.id)};
+
+function av(id,nodot){
+  const p=person(id)||{username:'?'},d=document.createElement('div');
+  d.className='pa '+kof(p.username);d.textContent=p.username[0].toUpperCase();
+  if(!nodot){const o=document.createElement('span');o.className='dot'+(online.has(id)?'':' off');d.appendChild(o)}
+  return d;
+}
 function renderList(){
   const q=$('#ls').value.toLowerCase(),box=$('#convs');box.innerHTML='';
-  C.forEach((c,idx)=>{
-    if(!c.n.toLowerCase().includes(q))return;
-    const last=c.m[c.m.length-1];
-    const d=document.createElement('div');d.className='conv'+(idx===cur?' on':'');d.tabIndex=0;d.setAttribute('role','button');
-    d.innerHTML=`<div class="pa ${c.k}">${c.i}<span class="dot ${c.on?'':'off'}"></span></div><div class="ci"><strong><span></span><em></em></strong><p></p></div>${c.u?'<span class="badge"></span>':''}`;
-    d.querySelector('strong span').textContent=c.n;d.querySelector('em').textContent=last[2];
-    d.querySelector('p').textContent=(last[0]==='out'?'You: ':'')+last[1];
-    if(c.u)d.querySelector('.badge').textContent=c.u;
-    d.onclick=()=>openChat(idx);d.onkeydown=e=>{if(e.key==='Enter')openChat(idx)};
+  const lastT=id=>{const a=convs[id];return a&&a.length?a[a.length-1].created_at:''};
+  [...people].sort((a,b)=>lastT(b.id).localeCompare(lastT(a.id))||a.username.localeCompare(b.username)).forEach(p=>{
+    if(!p.username.toLowerCase().includes(q))return;
+    const a=convs[p.id]||[],last=a[a.length-1],u=unread(p.id);
+    const d=document.createElement('div');d.className='conv'+(p.id===cur?' on':'');d.tabIndex=0;d.setAttribute('role','button');
+    d.appendChild(av(p.id));
+    const ci=document.createElement('div');ci.className='ci';ci.innerHTML='<strong><span></span><em></em></strong><p></p>';
+    ci.querySelector('span').textContent=p.username;ci.querySelector('em').textContent=last?fmt(last.created_at):'';
+    ci.querySelector('p').textContent=last?(last.sender===me.id?'You: ':'')+last.body:'Say hi 👋';
+    d.appendChild(ci);
+    if(u){const b=document.createElement('span');b.className='badge';b.textContent=u;d.appendChild(b)}
+    d.onclick=()=>openChat(p.id);d.onkeydown=e=>{if(e.key==='Enter')openChat(p.id)};
     box.appendChild(d);
   });
 }
-function bubble(t,who,time,seen=true){
+function renderStories(){
+  const st=$('#stories');st.innerHTML='';
+  people.filter(p=>online.has(p.id)).forEach(p=>{
+    const b=document.createElement('button');b.className='st';
+    const r=document.createElement('div');r.className='ring';r.appendChild(av(p.id,true));
+    const l=document.createElement('span');l.textContent=p.username.slice(0,8);
+    b.append(r,l);b.onclick=()=>openChat(p.id);st.appendChild(b);
+  });
+  st.style.display=st.children.length?'flex':'none';
+}
+function bubble(t,who,time){
   const m=document.createElement('div');m.className='m '+who;
   m.appendChild(document.createTextNode(t));
   const ti=document.createElement('time');ti.textContent=time;
-  if(who==='out'){const r=document.createElement('span');r.className='rc'+(seen?' seen':'');r.textContent=seen?' ✓✓':' ✓';ti.appendChild(r)}
+  if(who==='out'){const r=document.createElement('span');r.className='rc seen';r.textContent=' ✓';ti.appendChild(r)}
   m.appendChild(ti);
   const bar=document.createElement('div');bar.className='rbar';
   ['👍','❤️','😂','🔥'].forEach(e=>{const b=document.createElement('button');b.type='button';b.textContent=e;b.setAttribute('aria-label','React '+e);b.onclick=ev=>{ev.stopPropagation();react(m,e)};bar.appendChild(b)});
@@ -244,42 +290,102 @@ function react(m,e){
   x.textContent=e;m.classList.add('has');
   const r=m.getBoundingClientRect();burst(r.right-20,r.bottom,22,[330,30,50]);
 }
-const markSeen=()=>document.querySelectorAll('#msgs .rc').forEach(r=>{r.classList.add('seen');r.textContent=' ✓✓'});
-function openChat(i){
-  cur=i;const c=C[i];c.u=0;
-  $('#hav').className='pa '+c.k;$('#hav').innerHTML=c.i+`<span class="dot ${c.on?'':'off'}"></span>`;
-  $('#hn').textContent=c.n;$('#hs').textContent=c.on?'Online now':'Offline';$('#hs').className=c.on?'':'off';
-  $('#msgs').innerHTML='<div class="day">Today</div>';
-  c.m.forEach(([w,t,ti])=>bubble(t,w,ti));
+function setHead(){
+  const p=person(cur);if(!p)return;
+  const h=$('#hav');h.className='pa '+kof(p.username);h.textContent=p.username[0].toUpperCase();
+  const o=document.createElement('span');o.className='dot'+(online.has(cur)?'':' off');h.appendChild(o);
+  $('#hn').textContent=p.username;$('#hs').textContent=online.has(cur)?'Online now':'Offline';$('#hs').className=online.has(cur)?'':'off';
+}
+function openChat(id){
+  cur=id;markRead(id);setHead();
+  const box=$('#msgs');box.innerHTML='';
+  const a=convs[id]||[];
+  if(!a.length){const d=document.createElement('div');d.className='day';d.textContent='No messages yet. Say hi! 👋';box.appendChild(d)}
+  a.forEach(r=>bubble(r.body,r.sender===me.id?'out':'in',fmt(r.created_at)));
   $('#layout').classList.add('chatting');document.body.classList.add('chatting');
   renderList();
 }
+function showEmpty(){
+  cur=null;$('#hn').textContent='No one here yet';$('#hs').textContent='';$('#hav').textContent='';
+  $('#msgs').innerHTML='<div class="day">Invite a friend to create an account and you can chat. 💬</div>';
+}
 $('#back').onclick=()=>{$('#layout').classList.remove('chatting');document.body.classList.remove('chatting')};
 $('#ls').oninput=renderList;
-function send(t){
-  const idx=cur,c=C[idx],ti=now();c.m.push(['out',t,ti]);bubble(t,'out',ti,false);renderList();
-  const sb=$('.send').getBoundingClientRect();burst(sb.left+23,sb.top+23,16,[210,320]);
+
+async function send(t){
+  if(!cur||!me)return;
+  const to=cur,sbEl=$('.send').getBoundingClientRect();
+  burst(sbEl.left+23,sbEl.top+23,16,[210,320]);
   if(/🎉|\/party/.test(t))party();
-  if(!c.on)return;
-  const ty=document.createElement('div');ty.className='typing';ty.innerHTML='<i></i><i></i><i></i>';
-  setTimeout(()=>{if(cur===idx)markSeen()},900);
-  setTimeout(()=>{if(cur===idx){$('#msgs').appendChild(ty);$('#msgs').scrollTop=1e6}},1100);
-  setTimeout(()=>{
-    ty.remove();const r=c.r[Math.random()*c.r.length|0],t2=now();c.m.push(['in',r,t2]);
-    if(cur===idx)bubble(r,'in',t2);else c.u++;renderList();
-  },2200+Math.random()*1200);
+  const {data,error}=await sb.from('messages').insert({receiver:to,body:t}).select().single();
+  if(error){$('#hs').textContent='Could not send: '+error.message;return}
+  if(seen.has(data.id))return;
+  add(data);if(cur===to)bubble(data.body,'out',fmt(data.created_at));renderList();
 }
 $('#form').onsubmit=e=>{e.preventDefault();const t=$('#inp').value.trim();if(!t)return;$('#inp').value='';$('#emo').classList.remove('on');send(t)};
-openChat(0);
-$('#layout').classList.remove('chatting');document.body.classList.remove('chatting');
 
-/* stories, quick replies, emoji */
-const stories=$('#stories');
-const me=document.createElement('button');me.className='st me';me.innerHTML='<div class="ring"><div class="pa">+</div></div>Your story';stories.appendChild(me);
-C.forEach((c,i)=>{const b=document.createElement('button');b.className='st';b.innerHTML=`<div class="ring"><div class="pa ${c.k}">${c.i}</div></div><span></span>`;b.querySelector('span').textContent=c.n.split(' ')[0];b.onclick=()=>openChat(i);stories.appendChild(b)});
+/* quick replies + emoji */
 ['😂','🔥 Love it!','Tell me more 👀','On my way 🚀','🎉 Party time!'].forEach(t=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>send(t);$('#chips').appendChild(b)});
 ['😀','😂','😍','🥳','😎','🤔','👍','👏','🙏','❤️','🔥','✨','🎉','🎧','🎮','📸','✈️','🌍','🍕','☕','🚀','💡','😴','😭'].forEach(e=>{const b=document.createElement('button');b.type='button';b.textContent=e;b.onclick=()=>{$('#inp').value+=e;$('#inp').focus()};$('#emo').appendChild(b)});
 $('#eb').onclick=()=>$('#emo').classList.toggle('on');
+
+/* login / sign up */
+let signup=false;
+function setMode(){
+  $('#au').style.display=signup?'':'none';$('#au').required=signup;
+  $('#abtn').textContent=signup?'Create account':'Log in';
+  $('#aswitch').textContent=signup?'Have an account? Log in':'New here? Create an account';
+}
+$('#aswitch').onclick=()=>{signup=!signup;setMode()};setMode();
+$('#auth').onsubmit=async e=>{
+  e.preventDefault();const msg=$('#amsg');msg.textContent='One moment…';
+  const em=$('#ae').value.trim(),pw=$('#ap').value;
+  const r=signup?await sb.auth.signUp({email:em,password:pw,options:{data:{username:$('#au').value.trim()}}}):await sb.auth.signInWithPassword({email:em,password:pw});
+  if(r.error){msg.textContent=r.error.message;return}
+  if(signup&&!r.data.session)msg.textContent='Account created. Check your email to confirm, then log in.';
+};
+$('#me').onclick=()=>{if(me&&confirm('Log out of Meet?'))sb.auth.signOut()};
+
+async function enter(u){
+  me=u;$('#gate').hidden=true;
+  const name=(u.user_metadata&&u.user_metadata.username)||u.email.split('@')[0];
+  $('#me').textContent=name[0].toUpperCase();
+  const [p,m]=await Promise.all([
+    sb.from('profiles').select('id,username').neq('id',u.id).order('username'),
+    sb.from('messages').select('*').order('created_at').limit(1000)
+  ]);
+  people=p.data||[];convs={};seen=new Set();(m.data||[]).forEach(add);
+  renderList();renderStories();
+  if(people.length)openChat(people[0].id);else showEmpty();
+  $('#layout').classList.remove('chatting');document.body.classList.remove('chatting');
+  sb.channel('db')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},pl=>{
+      const r=pl.new;if(seen.has(r.id))return;add(r);
+      const o=r.sender===me.id?r.receiver:r.sender;
+      if(o===cur){bubble(r.body,r.sender===me.id?'out':'in',fmt(r.created_at));if(r.sender!==me.id)markRead(o)}
+      renderList();
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'profiles'},pl=>{
+      if(pl.new.id!==me.id&&!person(pl.new.id)){people.push(pl.new);renderList();if(!cur)openChat(pl.new.id)}
+    }).subscribe();
+  pc=sb.channel('presence',{config:{presence:{key:u.id}}});
+  pc.on('presence',{event:'sync'},()=>{online=new Set(Object.keys(pc.presenceState()));renderList();renderStories();setHead()})
+    .subscribe(async st=>{if(st==='SUBSCRIBED')await pc.track({at:Date.now()})});
+}
+function leave(){
+  me=null;cur=null;people=[];convs={};if(sb)sb.removeAllChannels();
+  $('#convs').innerHTML='';$('#stories').innerHTML='';$('#msgs').innerHTML='';$('#amsg').textContent='Log in to chat with real people.';$('#gate').hidden=false;
+}
+if(!configured){
+  $('#amsg').textContent='Setup needed: paste your Supabase URL and key at the top of this page\'s script.';
+  document.querySelectorAll('#auth input,#auth button').forEach(x=>x.disabled=true);
+}else{
+  sb=window.meetSb;
+  sb.auth.onAuthStateChange((ev,s)=>{
+    if(s&&(!me||me.id!==s.user.id))setTimeout(()=>enter(s.user),0);
+    if(!s&&me)leave();
+  });
+}
 </script>
 </body>
 </html>
