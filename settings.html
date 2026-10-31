@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meet — Settings</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+  <script type="module" src="auth-guard.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue: #3897f0;
+      --purple: #8134af;
+      --pink: #dd2a7b;
+      --orange: #f58529;
+      --yellow: #feda77;
+      --bg: #08080d;
+      --panel: rgba(18, 18, 24, .72);
+      --panel-2: rgba(255, 255, 255, .04);
+      --border: rgba(255, 255, 255, .10);
+      --text: #f5f5f7;
+      --muted: #a8a8b3;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--text);
+      font-family: "Inter", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 600px at 10% 10%, rgba(221, 42, 123, .22), transparent 60%),
+        radial-gradient(800px 600px at 90% 15%, rgba(129, 52, 175, .25), transparent 60%),
+        radial-gradient(900px 700px at 50% 100%, rgba(56, 151, 240, .20), transparent 65%),
+        var(--bg);
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    a { color: inherit; }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 20px 20px 90px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      margin-bottom: 22px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      background: linear-gradient(90deg, var(--yellow), var(--orange), var(--pink), var(--purple), var(--blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-decoration: none;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn, .avatar {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: var(--panel-2);
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 17px;
+    }
+
+    .icon-btn:hover { background: rgba(255, 255, 255, .09); }
+
+    .avatar {
+      border: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--purple), var(--blue));
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 20px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: .2s;
+    }
+
+    .nav a:hover {
+      color: var(--text);
+      background: var(--panel-2);
+    }
+
+    .nav a.active {
+      color: white;
+      background: linear-gradient(90deg, rgba(56, 151, 240, .25), rgba(221, 42, 123, .25));
+      border: 1px solid rgba(255, 255, 255, .12);
+    }
+
+    .page-heading {
+      margin: 4px 0 20px;
+    }
+
+    .page-heading h1 {
+      margin-bottom: 8px;
+      font-size: 30px;
+      letter-spacing: -.04em;
+    }
+
+    .page-heading p, .muted {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .settings-section + .settings-section { margin-top: 18px; }
+
+    .section-heading {
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-heading h2 {
+      margin-bottom: 5px;
+      font-size: 17px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 22px;
+    }
+
+    .profile-avatar {
+      width: 68px;
+      height: 68px;
+      flex: 0 0 68px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--purple), var(--blue));
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .profile-row strong { display: block; margin-bottom: 5px; }
+
+    .profile-row button {
+      padding: 0;
+      border: 0;
+      color: #72b8ff;
+      background: none;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    .field label {
+      color: #e7e7ec;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      min-height: 44px;
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      background: rgba(255, 255, 255, .04);
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    select option {
+      color: var(--text);
+      background: #17171f;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(56, 151, 240, .7);
+      box-shadow: 0 0 0 4px rgba(56, 151, 240, .12);
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .07);
+    }
+
+    .setting-row:last-child { border-bottom: 0; }
+
+    .setting-copy strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .setting-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      flex: 0 0 46px;
+    }
+
+    .switch input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .12);
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .slider::before {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      content: "";
+      transition: .2s;
+    }
+
+    .switch input:checked + .slider {
+      border-color: transparent;
+      background: linear-gradient(90deg, var(--blue), var(--purple), var(--pink));
+    }
+
+    .switch input:checked + .slider::before { transform: translateX(20px); }
+
+    .switch input:focus-visible + .slider {
+      outline: 3px solid rgba(56, 151, 240, .4);
+      outline-offset: 3px;
+    }
+
+    .actions {
+      position: sticky;
+      bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(12, 12, 18, .88);
+      backdrop-filter: blur(16px);
+    }
+
+    .btn {
+      min-height: 43px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      background: linear-gradient(90deg, var(--blue), var(--purple), var(--pink), var(--orange));
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      transition: .2s;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn.secondary {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+    }
+
+    .btn.danger {
+      border: 1px solid rgba(255, 92, 122, .3);
+      background: rgba(255, 92, 122, .10);
+      color: #ff7890;
+    }
+
+    .danger-zone {
+      border-color: rgba(255, 92, 122, .22);
+    }
+
+    .danger-zone .section-heading { border-color: rgba(255, 92, 122, .15); }
+
+    .danger-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 10;
+      padding: 13px 17px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: #1b1b25;
+      color: var(--text);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, .35);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: .25s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      z-index: 5;
+      display: none;
+      gap: 6px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(12, 12, 18, .88);
+      backdrop-filter: blur(20px);
+      transform: translateX(-50%);
+    }
+
+    .bottom-nav a {
+      width: 54px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 18px;
+    }
+
+    .bottom-nav a.active {
+      color: white;
+      background: linear-gradient(90deg, rgba(56, 151, 240, .3), rgba(221, 42, 123, .3));
+    }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .bottom-nav { display: flex; }
+      .page-heading h1 { font-size: 25px; }
+      .app { padding: 14px 14px 100px; }
+      .panel { padding: 16px; }
+    }
+
+    @media (max-width: 520px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .danger-row { align-items: flex-start; flex-direction: column; }
+      .actions { justify-content: stretch; }
+      .actions .btn { flex: 1; }
+      .header-actions .icon-btn:first-child { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <div class="app">
+    <header>
+      <a class="logo" href="home.html">Meet</a>
+
+      <div class="header-actions">
+        <button class="icon-btn" type="button" title="Notifications" aria-label="Notifications">🔔</button>
+        <a class="icon-btn" href="friends.html" title="Friends" aria-label="Friends">👥</a>
+        <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages">💬</a>
+        <div class="avatar" title="Your profile">Y</div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="panel sidebar">
+        <nav class="nav" aria-label="Main navigation">
+          <a href="home.html">🏠 Home</a>
+          <a href="#">🔍 Discover</a>
+          <a href="messages.html">💬 Messages</a>
+          <a href="friends.html">👥 Friends</a>
+          <a href="#">🎥 Live Rooms</a>
+          <a href="games.html">🎮 Games</a>
+          <a href="#">❤️ Saved</a>
+          <a href="settings.html" class="active" aria-current="page">⚙️ Settings</a>
+        </nav>
+      </aside>
+
+      <main>
+        <div class="page-heading">
+          <h1>Settings</h1>
+          <p>Manage your profile, privacy, and how Meet works for you.</p>
+        </div>
+
+        <form id="settingsForm">
+          <section class="panel settings-section">
+            <div class="section-heading">
+              <h2>Profile information</h2>
+              <p>Update the details other people see on your profile.</p>
+            </div>
+
+            <div class="profile-row">
+              <div class="profile-avatar" id="profileInitials">A</div>
+              <div>
+                <strong>Your profile photo</strong>
+                <p class="muted">Your initials are shown until you add a photo.</p>
+                <button type="button" id="changeAvatar">Change initials</button>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="fullName">Full name</label>
+                <input id="fullName" name="fullName" type="text" placeholder="Alex Morgan" />
+              </div>
+
+              <div class="field">
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text" placeholder="@alexmorgan" />
+              </div>
+
+              <div class="field full">
+                <label for="bio">About you</label>
+                <textarea id="bio" name="bio" maxlength="160" placeholder="Tell people a little about yourself..."></textarea>
+              </div>
+
+              <div class="field">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" placeholder="alex@example.com" />
+              </div>
+
+              <div class="field">
+                <label for="location">Location</label>
+                <input id="location" name="location" type="text" placeholder="City or region" />
+              </div>
+            </div>
+          </section>
+
+          <section class="panel settings-section">
+            <div class="section-heading">
+              <h2>Privacy</h2>
+              <p>Choose how people can find and interact with you.</p>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-copy">
+                <strong>Show my profile in Discover</strong>
+                <span>Let other people find your profile and send you a connection request.</span>
+              </div>
+              <label class="switch" aria-label="Show my profile in Discover">
+                <input type="checkbox" name="discoverable" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-copy">
+                <strong>Show my distance</strong>
+                <span>Display an approximate distance to people nearby.</span>
+              </div>
+              <label class="switch" aria-label="Show my distance">
+                <input type="checkbox" name="showDistance" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-copy">
+                <strong>Allow message requests</strong>
+                <span>Receive messages from people you haven't connected with.</span>
+              </div>
+              <label class="switch" aria-label="Allow message requests">
+                <input type="checkbox" name="messageRequests" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel settings-section">
+            <div class="section-heading">
+              <h2>Notifications</h2>
+              <p>Pick which updates you want to receive.</p>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-copy">
+                <strong>Messages</strong>
+                <span>Get notified when someone sends you a message.</span>
+              </div>
+              <label class="switch" aria-label="Message notifications">
+                <input type="checkbox" name="notifyMessages" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-copy">
+                <strong>Friend requests</strong>
+                <span>Get notified about new connection requests.</span>
+              </div>
+              <label class="switch" aria-label="Friend request notifications">
+                <input type="checkbox" name="notifyFriends" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-copy">
+                <strong>Room recommendations</strong>
+                <span>Get occasional suggestions for rooms you might enjoy.</span>
+              </div>
+              <label class="switch" aria-label="Room recommendation notifications">
+                <input type="checkbox" name="notifyRooms" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel settings-section">
+            <div class="section-heading">
+              <h2>Appearance</h2>
+              <p>Personalize your Meet experience.</p>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="theme">Theme</label>
+                <select id="theme" name="theme">
+                  <option value="dark">Dark</option>
+                  <option value="system">Use device setting</option>
+                </select>
+              </div>
+
+              <div class="setting-row" style="border: 0; padding: 8px 0;">
+                <div class="setting-copy">
+                  <strong>Reduce motion</strong>
+                  <span>Limit animations and visual effects.</span>
+                </div>
+                <label class="switch" aria-label="Reduce motion">
+                  <input type="checkbox" name="reduceMotion" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel settings-section danger-zone">
+            <div class="section-heading">
+              <h2>Account</h2>
+              <p>Manage your account security and data.</p>
+            </div>
+            <div class="danger-row">
+              <div class="setting-copy">
+                <strong>Delete account</strong>
+                <span>This action can't be undone. Your account data may be permanently removed.</span>
+              </div>
+              <button class="btn danger" type="button" id="deleteAccount">Delete account</button>
+            </div>
+          </section>
+
+          <div class="actions">
+            <button class="btn secondary" type="reset">Discard changes</button>
+            <button class="btn" type="submit">Save changes</button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a href="home.html" title="Home">🏠</a>
+    <a href="#" title="Discover">🔍</a>
+    <a href="messages.html" title="Messages">💬</a>
+    <a href="games.html" title="Games">🎮</a>
+    <a href="settings.html" class="active" title="Settings" aria-current="page">⚙️</a>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Settings saved.</div>
+
+  <script>
+    const STORAGE_KEY = "meetSettings";
+    const form = document.getElementById("settingsForm");
+    const toast = document.getElementById("toast");
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function getFormSettings() {
+      const settings = {};
+      for (const element of form.elements) {
+        if (!element.name) continue;
+        settings[element.name] = element.type === "checkbox"
+          ? element.checked
+          : element.value;
+      }
+      return settings;
+    }
+
+    function applySettings(settings = {}) {
+      for (const element of form.elements) {
+        if (!element.name || !(element.name in settings)) continue;
+
+        if (element.type === "checkbox") {
+          element.checked = Boolean(settings[element.name]);
+        } else {
+          element.value = settings[element.name];
+        }
+      }
+      updateInitials();
+    }
+
+    function updateInitials() {
+      const name = document.getElementById("fullName").value.trim();
+      const initials = name
+        ? name.split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase()
+        : "A";
+      document.getElementById("profileInitials").textContent = initials;
+    }
+
+    try {
+      applySettings(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"));
+    } catch {
+      applySettings();
+    }
+
+    document.getElementById("fullName").addEventListener("input", updateInitials);
+
+    document.getElementById("changeAvatar").addEventListener("click", () => {
+      updateInitials();
+      showToast("Your initials have been updated.");
+    });
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getFormSettings()));
+      showToast("Settings saved.");
+    });
+
+    form.addEventListener("reset", () => {
+      setTimeout(() => {
+        try {
+          applySettings(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"));
+        } catch {
+          applySettings();
+        }
+        showToast("Unsaved changes discarded.");
+      }, 0);
+    });
+
+    document.getElementById("deleteAccount").addEventListener("click", () => {
+      const confirmed = confirm("Are you sure you want to delete your account? This demo page cannot delete an account for you.");
+      if (confirmed) showToast("Connect this button to your account deletion flow.");
+    });
+
+    // Subtle background particles.
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    let animationFrame;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const count = Math.min(75, Math.floor((canvas.width * canvas.height) / 20000));
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + .5,
+        vx: (Math.random() - .5) * .2,
+        vy: (Math.random() - .5) * .2,
+        hue: Math.random() < .5 ? 210 : 320
+      }));
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx.fillStyle = `hsla(${p.hue}, 100%, 70%, .35)`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      animationFrame = requestAnimationFrame(animateParticles);
+    }
+
+    resizeCanvas();
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      animateParticles();
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+  </script>
+</body>
+</html>
