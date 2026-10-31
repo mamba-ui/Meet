@@ -1,25 +1,101 @@
 /* ===== Your Supabase values (public keys, safe in a web page) ===== */
-window.MEET_CONFIG={url:'https://dzzqtyghwbqvgyovxvbp.supabase.co',key:'sb_publishable_uNBvZlmwspJDeb236nBTqw_TZ17iBlI'};
-/* ========================================================================== */
-(function(){
-  const cfg=window.MEET_CONFIG,root=document.documentElement,isPublic=root.hasAttribute('data-public');
-  const ready=fn=>document.readyState==='loading'?addEventListener('DOMContentLoaded',fn):fn();
-  const nextPage=()=>{const n=new URLSearchParams(location.search).get('next');return /^[\w-]+\.html$/.test(n||'')?n:'home.html'};
-  if(typeof supabase==='undefined'){ready(()=>{const b=document.createElement('div');b.textContent='Could not load the login system. Check your internet connection and refresh.';b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99;background:#dd2a7b;color:#fff;font:600 13px sans-serif;padding:8px 12px;text-align:center';document.body.appendChild(b)});return}
-  if(!isPublic)root.style.visibility='hidden';
-  const sb=window.meetSb=supabase.createClient(cfg.url,cfg.key);
-  const toLogin=()=>location.replace('login.html?next='+encodeURIComponent(location.pathname.split('/').pop()||'home.html'));
-  function personalize(u){
-    const name=(u.user_metadata&&u.user_metadata.username)||u.email.split('@')[0];
-    document.querySelectorAll('[data-username]').forEach(e=>e.textContent=name);
-    document.querySelectorAll('.avatar').forEach(a=>{a.textContent=name[0].toUpperCase();a.style.cursor='pointer';a.title='Click to log out';a.onclick=()=>{if(confirm('Log out of Meet?'))sb.auth.signOut()}});
+window.MEET_CONFIG = {
+  url: 'https://dzzqtyghwbqvgyovxvbp.supabase.co',
+  key: 'sb_publishable_uNBvZlmwspJDeb236nBTqw_TZ17iBlI'
+};
+/* ================================================================== */
+
+(async function () {
+  const cfg = window.MEET_CONFIG;
+  const root = document.documentElement;
+  const isPublic = root.hasAttribute('data-public');
+
+  const ready = (fn) =>
+    document.readyState === 'loading'
+      ? addEventListener('DOMContentLoaded', fn)
+      : fn();
+
+  const nextPage = () => {
+    const n = new URLSearchParams(location.search).get('next');
+    return /^[\w-]+\.html$/.test(n || '') ? n : 'home.html';
+  };
+
+  // Load Supabase from CDN
+  let createClient;
+
+  try {
+    const module = await import('https://esm.sh/@supabase/supabase-js@2');
+    createClient = module.createClient;
+  } catch (error) {
+    console.error(error);
+    ready(() => {
+      const banner = document.createElement('div');
+      banner.textContent = 'Could not load the login system. Check your internet connection and refresh.';
+      banner.style.cssText =
+        'position:fixed;top:0;left:0;right:0;z-index:99;background:#dd2a7b;color:#fff;font:600 13px sans-serif;padding:8px 12px;text-align:center';
+      document.body.appendChild(banner);
+    });
+    return;
   }
-  sb.auth.getSession().then(({data})=>{
-    const s=data.session;
-    if(!s&&!isPublic)return toLogin();
-    if(s&&isPublic)return location.replace(nextPage());
-    root.style.visibility='visible';
-    if(s)ready(()=>personalize(s.user));
-  }).catch(()=>{if(!isPublic)toLogin()});
-  sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'&&!isPublic)toLogin()});
+
+  // Create the Supabase client
+  const supabase = createClient(cfg.url, cfg.key);
+
+  const toLogin = () => {
+    const currentPage = location.pathname.split('/').pop() || 'home.html';
+    location.replace('login.html?next=' + encodeURIComponent(currentPage));
+  };
+
+  function personalize(user) {
+    const name =
+      (user.user_metadata && user.user_metadata.username) ||
+      user.email.split('@')[0];
+
+    document.querySelectorAll('[data-username]').forEach((element) => {
+      element.textContent = name;
+    });
+
+    document.querySelectorAll('.avatar').forEach((avatar) => {
+      avatar.textContent = name[0].toUpperCase();
+      avatar.style.cursor = 'pointer';
+      avatar.title = 'Click to log out';
+
+      avatar.onclick = async () => {
+        if (confirm('Log out of Meet?')) {
+          await supabase.auth.signOut();
+        }
+      };
+    });
+  }
+
+  const { data, error } = await supabase.auth.getSession();
+  const session = data.session;
+
+  if (error) {
+    console.error(error);
+    if (!isPublic) toLogin();
+    return;
+  }
+
+  if (!session && !isPublic) {
+    toLogin();
+    return;
+  }
+
+  if (session && isPublic) {
+    location.replace(nextPage());
+    return;
+  }
+
+  root.style.visibility = 'visible';
+
+  if (session) {
+    ready(() => personalize(session.user));
+  }
+
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT' && !isPublic) {
+      toLogin();
+    }
+  });
 })();
