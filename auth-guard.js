@@ -1,7 +1,7 @@
 /* ===== Your Supabase values (public keys, safe in a web page) ===== */
 window.MEET_CONFIG = {
-  url: 'https://dzzqtyghwbqvgyovxvbp.supabase.co',
-  key: 'sb_publishable_uNBvZlmwspJDeb236nBTqw_TZ17iBlI'
+  url: 'https://abcdxyz.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6...'
 };
 /* ================================================================== */
 
